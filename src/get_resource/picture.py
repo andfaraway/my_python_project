@@ -13,19 +13,18 @@ from utils import shell_util, file_util, path_util
 
 here = os.getcwd()
 
-
 HEADER_STRING = '''
 accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
 accept-encoding: gzip, deflate, br
 accept-language: zh-CN,zh;q=0.9,en;q=0.8
 cache-control: max-age=0
-cookie: CGIC=IocBdGV4dC9odG1sLGFwcGxpY2F0aW9uL3hodG1sK3htbCxhcHBsaWNhdGlvbi94bWw7cT0wLjksaW1hZ2UvYXZpZixpbWFnZS93ZWJwLGltYWdlL2FwbmcsKi8qO3E9MC44LGFwcGxpY2F0aW9uL3NpZ25lZC1leGNoYW5nZTt2PWIzO3E9MC45; HSID=AKcURlEGzYeYgvZub; SSID=AGVHoJijMVt95D_kt; APISID=e-JLHazKHhsTCV1R/Al9cD0z5t21FrVaXX; SAPISID=s-jwCGUORM6K3I2q/AjRsga53nAdag_wz7; __Secure-1PAPISID=s-jwCGUORM6K3I2q/AjRsga53nAdag_wz7; __Secure-3PAPISID=s-jwCGUORM6K3I2q/AjRsga53nAdag_wz7; OGPC=19025836-2:19026531-1:; SEARCH_SAMESITE=CgQI_ZMB; OTZ=6259803_24_24__24_; SID=EQiSMWmjDZmuf8ITIX6hwmJeKEDFIJrdvrNRbX56E8XmHoIoBrHzjD9shHbXWYbamm2HlQ.; __Secure-1PSID=EQiSMWmjDZmuf8ITIX6hwmJeKEDFIJrdvrNRbX56E8XmHoIoZCO1nwMyWfU0cdDboqt6SQ.; __Secure-3PSID=EQiSMWmjDZmuf8ITIX6hwmJeKEDFIJrdvrNRbX56E8XmHoIoXo_F3FhR0d6nO_Mmixhsdg.; NID=511=h2FY9G9nr1jleU-dce1HV2D34-ddz3v3fiAdKJEjEj-wzgP19TWj5F8WMmhc9VLCbI3Nm4KDM-ypT3HEcqv2eBX6IyqGMnnW_1n3TtqzYhblfJrwrE4uVT1bGTXNQ00EBiGHQmeOCQ4-qStTtbPuyB2UFJ10KPIohcEPX70_3YzObMVSY6XIP6kYPNnVg49tUlKbsQGrbjCVPCe7af8ilsSb4uaH2uclVm-1ln6zajblbC9k2eMl38wvREBegxA46p72X2V1urV5wUch7Em93pFa_8gwYnDdwXcrHOM6jhKUn_hwJhKXIjoojayE12tG6Vk_x0_WBG9JXmtBj0QGSXj6_bqf-rSzaLmcGNgOZYZIIbisY14GWsXNeQbVyWfpriCZ9p2V5BL-; 1P_JAR=2021-11-26-9; SIDCC=AJi4QfHgS1qiF6Fc-JOY0rn895pytHluHmvNpwwe63x6FkwGgfHa-Gu4mZe6EOgTGSH_o_Xe4yw; __Secure-3PSIDCC=AJi4QfE8KXPSIs3aWzngeUJbr98yKVz1m8f3uc1VLnU27dzfxuWrB6bmJVB8nUMGHOdM_V6DnQ
+cookie: CGIC=IocBdGV4dC9odG1sLGFwcGxpY2F0aW9uL3hodG1sK3htbCxhcHBsaWNhdGlvbi94bWw7cT0wLjksaW1hZ2UvYXZpZixpbWFnZS93ZWJwLGltYWdlL2FwbmcsKi8qO3E9MC44LGFwcGxpY2F0aW9uL3NpZ25lZC1leGNoYW5nZTt2PWIzO3E9MC45; HSID=AKcURlEGzYeYgvZub; SSID=AGVHoJijMVt95D_kt; APISID=e-JLHazKHhsTCV1R/Al9cD0z5t21FrVaXX; SAPISID=s-jwCGUORM6K3I2q/AjRsga53nAdag_wz7; __Secure-1PAPISID=s-jwCGUORM6K3I2q/AjRsga53nAdag_wz7; __Secure-3PAPISID=s-jwCGUORM6K3I2q/AjRsga53nAdag_wz7; OGPC=19025836-2:19026531-1:; SEARCH_SAMESITE=CgQI_ZMB; OTZ=6259803_24_24__24_; SID=EQiSMWmjDZmuf8ITIX6hwmJeKEDFIJrdvrNRbX56E8XmHoIoBrHzjD9shHbXWYbamm2HlQ.; __Secure-1PSID=EQiSMWmjDZmuf8ITIX6hwmJeKEDFIJrdvrNRbX56E8XmHoIoZCO1nwMyWfU0cdDboqt6SQ.; __Secure-3PSID=EQiSMWmjDZmuf8ITIX6hwmJeKEDFIJrdvrNRbX56E8XmHoIoXo_F3FhR0d6nO_Mmixhsdg.; NID=511=Sr9vHPktUtsq9ghZmV34IndFPC02DRxLSGIX1JuMIMniGQU0Lyt2GV4oD_NkamVMgJKtB_xcL1S6R0k3_aoG8pwkPE-B3Hr62xERgI25l7GsWScJuDeDSXL-lJZGzuRWUcXstpF-4b2sVbTt1m5BM09I2Ei7yjlklCHWu3G_LoQiMU4Lg8Ow0kWVZPmFIsbbjcxvkfR8YJDYOJnTNHF8DtJFbjsvPVNyCSrDzTZgth7tcIhU-R2sbEF-aA_0HvXaNVYZye6o8TIkiy_g2AeKHNdni3BX88oqxMARsBcWEeFkOCnpCG1hyi1GmyOj2BgwP0TxMoJYgHuMZmZkTi327gIGhfj0Qj5tKehH0EMuwo0MJEZZfcfShQ7X2Qqa45lc-4YNturS_oZe; DV=w2i2fmI0vSxPEL5WPJip-J-mAeeU1lfFnRULTMb8vQEAAOAeYAAQspMRdQAAAASIm0L1K13fTQAAAA; 1P_JAR=2021-11-29-1; SIDCC=AJi4QfGu6Q5iZGgqV_C_9XYMQOQKGIwFwT5fmO8SZy4U1nz7ERQZrkR1IcRmUL3R32hTYA439qs; __Secure-3PSIDCC=AJi4QfFZu7Ab4r0IH8GFpGOXySZYEF6zs3OX6qMugPU1uFJ2Bb6GzuvQSNKcRkJgdd1DWt7qrw
 sec-ch-ua: " Not A;Brand";v="99", "Chromium";v="96", "Google Chrome";v="96"
 sec-ch-ua-mobile: ?0
 sec-ch-ua-platform: "macOS"
 sec-fetch-dest: document
 sec-fetch-mode: navigate
-sec-fetch-site: none
+sec-fetch-site: same-origin
 sec-fetch-user: ?1
 upgrade-insecure-requests: 1
 user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36
@@ -71,7 +70,8 @@ def get_google_src(html_url):
     #     list1.append(img_src)
     # return list1
 
-def get_headers(headers_str:str):
+
+def get_headers(headers_str: str):
     headers = {}
     header_list = headers_str.strip().split('\n')
     for string in header_list:
@@ -86,7 +86,7 @@ keyword = 'water'
 size = 30
 start = 2
 url = 'https://www.google.com/search?&tbm=isch&q=%s&num=%d&start=%d&tbs=isz:l' % (keyword, size, start)
-url = 'https://www.google.com/search?&tbm=isch&q=water#imgrc=_4QfZOKz5fTmpM'
+url = 'https://www.google.com/search?q=water&newwindow=1&sxsrf=AOaemvJzOBfvX-O6Uq9vWkNMhEmUdnUiCQ:1638149286553&source=lnms&tbm=isch&sa=X&ved=2ahUKEwi4lcHStbz0AhXBfd4KHdQZDOgQ_AUoAXoECAIQAw&biw=1577&bih=896&dpr=1#imgrc=fNyqVGsZx5h7CM'
 
 print(url)
 get_google_src(url)
