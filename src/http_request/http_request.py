@@ -1,8 +1,8 @@
 from flask import Flask, request
 from gevent import pywsgi
 
-import api
-import http_result
+from . import api
+from . import http_result
 
 app = Flask(__name__)
 
@@ -17,6 +17,8 @@ def login():
     r_list = api.login(username, password)
     print('r_list = {}'.format(r_list))
     result_dic = r_list[1:]
+
+    return http_result.dic_format(code=200, msg='test', data=get_src())
     if result_dic is None or len(result_dic) == 0:
         return http_result.dic_format(code=203, msg='failure')
     else:
@@ -29,13 +31,31 @@ def main_func():
 
 
 def start():
-    app.run(host='0.0.0.0')
-    # _server = pywsgi.WSGIServer(('0.0.0.0', 5000), app)
-    # _server.serve_forever()
+    # app.run(host='0.0.0.0')
+    _server = pywsgi.WSGIServer(('0.0.0.0', 5000), app)
+    _server.serve_forever()
+
+
+def get_src():
+    import os
+    path = os.getcwd()
+    path = path.replace('my_python_project', 'default/src/')
+
+    print(path)
+    files = os.listdir(path)
+
+    files_list = []
+    for file in files:
+        if os.path.isdir(path + file):
+            files_list.append(file)
+
+    dic = {}
+    for dir_name in files_list:
+        files = os.listdir(path + dir_name + '/')
+        dic[dir_name] = files
+    print(dic)
+    return dic
 
 
 if __name__ == "__main__":
-    # app.run(host='0.0.0.0')
-    # server = pywsgi.WSGIServer(('0.0.0.0', 5000), app)
-    # server.serve_forever()
     start()

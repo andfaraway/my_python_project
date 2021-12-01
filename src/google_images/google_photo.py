@@ -100,7 +100,7 @@ def get_image_url():
         if normal_class != div_box.get_attribute('class'):
             print('非正常div，跳过: %s', div_box.get_attribute('class'))
             continue
-        print('%s(%d/%d)开始下载' % (key_word, index, count))
+        print('%s%s(%d/%d)开始下载' % (current_time(), key_word, index, count))
         try:
             img = div_box.find_element(by=By.TAG_NAME, value='img')
             img.click()

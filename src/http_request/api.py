@@ -1,4 +1,4 @@
-import mysql_use
+from . import mysql_use
 
 
 # 登录
