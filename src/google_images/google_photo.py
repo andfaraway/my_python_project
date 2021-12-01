@@ -62,6 +62,10 @@ def down_load_big_img(pic_name):
             suffix = original_url.split('.')[-1]
             if '/' in suffix:
                 suffix = 'png'
+        else:
+            suffix = original_url.split('.')[-1]
+            if '/' in suffix:
+                suffix = 'png'
 
     elif 'fmt=' in img_url:
         # 带有格式的url
