@@ -23,7 +23,6 @@ def login():
         return http_result.dic_format(code=200, msg='success', data=result_dic)
 
 
-
 @app.route("/")
 def main_func():
     return "Hello World!"

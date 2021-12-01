@@ -10,6 +10,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 
 
+# 下载图片
 def request_download(image_url, save_path):
     try:
         if 'data:image' in image_url:
@@ -86,6 +87,7 @@ def down_load_big_img(pic_name):
     return img_url
 
 
+# 获取url
 def get_image_url():
     time.sleep(3)
     # 获取根视图
@@ -118,6 +120,10 @@ def get_image_url():
     return images
 
 
+def current_time():
+    return time.strftime("[%Y-%m-%d %H:%M:%S]", time.localtime())
+
+
 if __name__ == '__main__':
     # 存储路径
     download_root_path = '/Users/libin/Desktop/downloads/'
@@ -127,16 +133,19 @@ if __name__ == '__main__':
     # 设置谷歌浏览器的页面无可视化，如果需要可视化请注释这两行代码
     ch_op.add_argument('--headless')
     ch_op.add_argument('--disable-gpu')
-    driver = webdriver.Chrome(service=Service('./chromedriver'), options=ch_op)
-
+    try:
+        driver = webdriver.Chrome(service=Service('./chromedriver'), options=ch_op)
+    except Exception as error:
+        print(error)
+        quit()
     num = 10
     start = 1
     total_count = 200
     images = []
 
-    downloads_list = ['日出', '日落', '海', '阳光', '壁纸']
+    downloads_list = ['日落', '海', '阳光', '壁纸']
 
-    print('开始下载:{}'.format(downloads_list))
+    print('{}开始下载:{}'.format(current_time(), downloads_list))
     while len(downloads_list):
         key_word = downloads_list[0]
         # noinspection PyBroadException
@@ -154,5 +163,5 @@ if __name__ == '__main__':
             downloads_list.pop(0)
         except Exception as error:
             print('下载({})出错'.format(key_word))
-
+    print(current_time() + '下载完成')
     quit()
