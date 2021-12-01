@@ -9,25 +9,19 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 
-here = os.getcwd()
 
-
-def request_download(image_url, directory, filename):
-    path = here + '/' + directory + '/' + filename
-    if directory is None or directory == '':
-        path = here + '/' + filename
-
+def request_download(image_url, save_path):
     try:
         if 'data:image' in image_url:
             # base64转图片
             image_url = image_url.split('base64,')[1]
             _img_data = base64.b64decode(image_url)
-            with open(path, 'wb') as f:
+            with open(save_path, 'wb') as f:
                 f.write(_img_data)
         else:
             # http下载
             r = requests.get(image_url)
-            with open(path, 'wb') as f:
+            with open(save_path, 'wb') as f:
                 f.write(r.content)
 
         print('下载成功--> %s' % image_url)
@@ -77,17 +71,16 @@ def down_load_big_img(pic_name):
     # 下载后保存名称
     save_name = pic_name + '.' + suffix
 
-    # 创建存储目录
-    os.makedirs(key_word, exist_ok=True)
     # 开始下载
-    success = request_download(img_url, key_word, save_name)
-
+    success = request_download(img_url, download_path + '/' + save_name)
     # url写入text
     try:
         if success:
-            path = here + '/' + key_word + '/urls.text'
+            text = '({}):{}'.format(save_name, img_url)
+            if 'data:image' in img_url: text = '({}):image;base64'.format(save_name)
+            path = download_path + '/urls.text'
             with open(path, 'a') as f:
-                f.write(img_url + '\n')
+                f.write(text + '\n')
     except IOError:
         print('url write error')
     return img_url
@@ -105,7 +98,7 @@ def get_image_url():
         if normal_class != div_box.get_attribute('class'):
             print('非正常div，跳过: %s', div_box.get_attribute('class'))
             continue
-        print('(%d/%d)开始下载' % (index, count))
+        print('%s(%d/%d)开始下载' % (key_word, index, count))
         try:
             img = div_box.find_element(by=By.TAG_NAME, value='img')
             img.click()
@@ -113,8 +106,7 @@ def get_image_url():
             img_url = down_load_big_img('%d' % index)
             # img_url = image.get_attribute("src") #缩略图
             images.append(img_url)
-            if len(images) > 500:
-                driver.__exit__()
+            if len(images) > total_count:
                 break
         except BaseException as error:
             print(error.__class__)
@@ -126,39 +118,41 @@ def get_image_url():
     return images
 
 
-def test():
-    image_url = 'https://inews.gtimg.com/newsapp_bt/0/11929928804/1000'
-    image_url = 'https://lh3.googleusercontent.com/proxy/YrtE8YhnqS4gym-yrMKzK3Z0AsZ-nuEYOGyx0IMO7blup-mhtg7maNaMg3nC_WdRcrSmqueBfq5JiQmnfhHZjbznFOHH6CM-UOyGc_-Fpb0TtyaJo8LUgKcSRpY1zznpWGkXFemgpsUvaBycsU52xHQ'
-    request_download(image_url, '', 'test.png')
-    quit()
-
-
 if __name__ == '__main__':
-    # test()
-
+    # 存储路径
+    download_root_path = '/Users/libin/Desktop/downloads/'
+    download_path = download_root_path
     # 创建一个参数对象，用来控制chrome是否以无界面模式打开
     ch_op = Options()
     # 设置谷歌浏览器的页面无可视化，如果需要可视化请注释这两行代码
     ch_op.add_argument('--headless')
     ch_op.add_argument('--disable-gpu')
+    driver = webdriver.Chrome(service=Service('./chromedriver'), options=ch_op)
 
-    key_word = '鹿晗'
     num = 10
     start = 1
-    url = "https://www.google.com/search?&tbm=isch&q=%s&num=%d&start=%d&tbs=isz:l" % (
-        key_word, num, start)
-    driver = webdriver.Chrome(service=Service('./chromedriver'), options=ch_op)
-    driver.get(url)
-
     total_count = 200
     images = []
-    get_image_url()
 
-    key_word = '原神'
-    images.clear()
-    get_image_url()
+    downloads_list = ['日出', '日落', '海', '阳光', '壁纸']
 
-    key_word = '英雄联盟壁纸'
-    images.clear()
-    get_image_url()
-    driver.__exit__()
+    print('开始下载:{}'.format(downloads_list))
+    while len(downloads_list):
+        key_word = downloads_list[0]
+        # noinspection PyBroadException
+        try:
+            download_path = download_root_path + key_word
+            if not os.path.exists(download_path):
+                os.mkdir(download_path)
+            url = "https://www.google.com/search?&tbm=isch&q=%s&num=%d&start=%d&tbs=isz:l" % (
+                key_word, num, start)
+
+            driver.get(url)
+            images.clear()
+            get_image_url()
+            print('{}下载完成。'.format(key_word))
+            downloads_list.pop(0)
+        except Exception as error:
+            print('下载({})出错'.format(key_word))
+
+    quit()

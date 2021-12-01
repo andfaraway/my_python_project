@@ -15,60 +15,86 @@ def connect_sql():
 
 
 # 查询数据库数据
-def search_info(temp_cnn, sql_str):
-    sql_str = 'select * from user'
+def search_info(db, sql_str):
     # 获取游标
-    cursor = temp_cnn.cursor()
-    # 获取查询结果元组
-    cursor.execute(sql_str)
-    data_tup = cursor.fetchall()
+    cursor = db.cursor()
+    try:
+        # 获取查询结果元组
+        cursor.execute(sql_str)
+        data_tup = cursor.fetchall()
+        if len(data_tup) == 0:
+            return None
+        # 获取字段名
+        fields = cursor.description
+        print(data_tup)
+        dic = {}
+        for index in range(len(fields)):
+            key = fields[index][0]
+            value = data_tup[0][index]
+            dic[key] = value
+    except Exception as error:
+        print(error)
 
-    # 获取字段名
-    fields = cursor.description
-    dic = {}
-    for index in range(len(fields)):
-        key = fields[index][0]
-        value = data_tup[0][index]
-        dic[key] = value
     cursor.close()
+    db.close()
     return dic
 
 
-# 匹配账号密码
-def check(username, password):
-    sql = "select * FROM user where username = \'%s\' and password = \'%s\'" % (username, password)
-    print('sql=' + sql)
-    cnn = connect_sql()
-    res = search_info(cnn, sql)
-    return res
-    cnn.close()
-
-# try:
-#     # 执行SQL语句
-#     cursor.execute(sql)
-#     res = cursor.fetchall()
-#     print(res[0][1])
-#
-#     # 向数据库提交
-#     conn.commit()
-# except:
-#     # 发生错误时回滚
-#     print('error' + conn)
-#     conn.rollback()
-#
-# conn.close()
+# 增加数据
+def insert_info(db, sql_str):
+    # 获取游标
+    cursor = db.cursor()
+    result = 0
+    try:
+        # 执行sql语句
+        result = cursor.execute(sql_str)
+        # 提交到数据库执行
+        db.commit()
+    except BaseException as error:
+        print(error)
+        # Rollback in case there is any error
+        db.rollback()
+    # 关闭数据库连接
+    cursor.close()
+    db.close()
+    return result
 
 
-# def searchInfo():
+# 删除数据
+def delete_info(db, sql_str):
+    # 获取游标
+    cursor = db.cursor()
+    result = 0
+    try:
+        # 执行sql语句
+        result = cursor.execute(sql_str)
+        # 提交到数据库执行
+        db.commit()
+    except BaseException as error:
+        print(error)
+        # Rollback in case there is any error
+        db.rollback()
+    # 关闭数据库连接
+    cursor.close()
+    db.close()
+    return result
 
-# cur.execute("select login_password from user where login_name='admin'")
-# while 1:
-#     res = cur.fetchone()
-#     if res is None:
-#         break
-#     print(res[0])
-# cur.close()
-#
-# conn.commit()
-# conn.close()
-# print('sql执行成功')
+
+# 更新数据
+def update_info(db, sql_str):
+    # 获取游标
+    cursor = db.cursor()
+    result = 0
+    try:
+        # 执行sql语句
+        result = cursor.execute(sql_str)
+        # 提交到数据库执行
+        db.commit()
+    except BaseException as error:
+        print(error)
+        # Rollback in case there is any error
+        db.rollback()
+    # 关闭数据库连接
+    cursor.close()
+    db.close()
+    return result

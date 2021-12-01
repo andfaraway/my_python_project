@@ -12,3 +12,5 @@ def run_cmd(cmd: str):
 # 当前目录下创建新目录
 def create(name):
     os.makedirs(name, exist_ok=True)
+
+# 获取当前目录 os.getcwd()
