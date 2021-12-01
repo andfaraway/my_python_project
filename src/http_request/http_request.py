@@ -7,18 +7,21 @@ import http_result
 app = Flask(__name__)
 
 
-@app.route("/login")
+@app.route("/login", methods=['get', 'post'])
 def login():
     username = request.args.get('username')
     password = request.args.get('password')
     if username is None or password is None:
         return http_result.dic_format(code=201, msg='Parameters are missing')
 
-    result_dic = api.register(username, password)
+    r_list = api.login(username, password)
+    print('r_list = {}'.format(r_list))
+    result_dic = r_list[1:]
     if result_dic is None or len(result_dic) == 0:
         return http_result.dic_format(code=203, msg='failure')
     else:
         return http_result.dic_format(code=200, msg='success', data=result_dic)
+
 
 
 @app.route("/")

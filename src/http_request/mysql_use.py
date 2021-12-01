@@ -6,7 +6,7 @@ import re
 def connect_sql():
     host = '1.14.252.115'
     user = 'root'
-    passwd = 'mysqljmrx'
+    passwd = 'lbsmysql'
     db = 'nothing'
 
     conn = pymysql.connect(host=host, user=user, passwd=passwd, )
@@ -18,26 +18,26 @@ def connect_sql():
 def search_info(db, sql_str):
     # 获取游标
     cursor = db.cursor()
+    result = 0
+    dic = {}
     try:
         # 获取查询结果元组
-        cursor.execute(sql_str)
+        result = cursor.execute(sql_str)
         data_tup = cursor.fetchall()
-        if len(data_tup) == 0:
-            return None
-        # 获取字段名
-        fields = cursor.description
-        print(data_tup)
-        dic = {}
-        for index in range(len(fields)):
-            key = fields[index][0]
-            value = data_tup[0][index]
-            dic[key] = value
+        if not len(data_tup) == 0:
+            # 获取字段名
+            fields = cursor.description
+            print(data_tup)
+            for index in range(len(fields)):
+                key = fields[index][0]
+                value = data_tup[0][index]
+                dic[key] = value
     except Exception as error:
         print(error)
 
     cursor.close()
     db.close()
-    return dic
+    return [result, dic]
 
 
 # 增加数据
@@ -57,7 +57,7 @@ def insert_info(db, sql_str):
     # 关闭数据库连接
     cursor.close()
     db.close()
-    return result
+    return [result]
 
 
 # 删除数据
@@ -77,7 +77,7 @@ def delete_info(db, sql_str):
     # 关闭数据库连接
     cursor.close()
     db.close()
-    return result
+    return [result]
 
 
 # 更新数据
@@ -97,4 +97,4 @@ def update_info(db, sql_str):
     # 关闭数据库连接
     cursor.close()
     db.close()
-    return result
+    return [result]
