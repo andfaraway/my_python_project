@@ -1,3 +1,4 @@
+# coding=utf-8
 from flask import Flask, request
 from gevent import pywsgi
 
@@ -18,7 +19,6 @@ def login():
     print('r_list = {}'.format(r_list))
     result_dic = r_list[1:]
 
-    return http_result.dic_format(code=200, msg='test', data=get_src())
     if result_dic is None or len(result_dic) == 0:
         return http_result.dic_format(code=203, msg='failure')
     else:
@@ -36,12 +36,12 @@ def start():
     _server.serve_forever()
 
 
+@app.route("/images")
 def get_src():
     import os
     path = os.getcwd()
     path = path.replace('my_python_project', 'default/src/')
 
-    print(path)
     files = os.listdir(path)
 
     files_list = []
@@ -53,8 +53,7 @@ def get_src():
     for dir_name in files_list:
         files = os.listdir(path + dir_name + '/')
         dic[dir_name] = files
-    print(dic)
-    return dic
+    return http_result.dic_format(200, '', dic)
 
 
 if __name__ == "__main__":
