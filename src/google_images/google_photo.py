@@ -175,10 +175,10 @@ if __name__ == '__main__':
 
     num = 10
     start = 1
-    total_count = 200
+    total_count = 100
     images = []
 
-    downloads_list = ['壁纸']
+    downloads_list = ['手机壁纸','漫画壁纸']
 
     print('{}:{}'.format(current_time(), downloads_list))
     while len(downloads_list):
