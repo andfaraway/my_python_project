@@ -18,26 +18,26 @@ def connect_sql():
 def search_info(db, sql_str):
     # 获取游标
     cursor = db.cursor()
-    result = 0
-    dic = {}
+    result_list = []
     try:
         # 获取查询结果元组
-        result = cursor.execute(sql_str)
+        cursor.execute(sql_str)
         data_tup = cursor.fetchall()
+        fields = cursor.description
         if not len(data_tup) == 0:
-            # 获取字段名
-            fields = cursor.description
-            print(data_tup)
-            for index in range(len(fields)):
-                key = fields[index][0]
-                value = data_tup[0][index]
-                dic[key] = value
+            for i in range(len(data_tup)):
+                dic = {}
+                # 获取字段名
+                for index in range(len(fields)):
+                    key = fields[index][0]
+                    value = data_tup[i][index]
+                    dic[key] = value
+                result_list.append(dic)
     except Exception as error:
         print(error)
-
     cursor.close()
     db.close()
-    return [result, dic]
+    return result_list
 
 
 # 增加数据

@@ -35,3 +35,26 @@ def update(username, nickname):
     cnn = mysql_use.connect_sql()
     res = mysql_use.insert_info(cnn, sql)
     return res
+
+
+# 获取图片分类
+def getPictureCategory():
+    sql = "select * FROM  photo_show_images_category"
+    print('sql=' + sql)
+    cnn = mysql_use.connect_sql()
+    res = mysql_use.search_info(cnn, sql)
+    return res
+
+
+# 根据分类获取图片
+def getPicturesWithCategory(category):
+    sql = "select * FROM  photo_show_images where category = \'{}\'".format(category)
+    print('sql=' + sql)
+    cnn = mysql_use.connect_sql()
+    res = mysql_use.search_info(cnn, sql)
+    # 只取id
+    result = []
+    for dic in res:
+        temp_dic = {'id': dic['id'], 'category': category, 'url': dic['url']}
+        result.append(temp_dic)
+    return result

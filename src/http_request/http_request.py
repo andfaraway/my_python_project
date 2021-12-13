@@ -30,12 +30,6 @@ def main_func():
     return "Hello World!"
 
 
-def start():
-    # app.run(host='0.0.0.0')
-    _server = pywsgi.WSGIServer(('0.0.0.0', 5000), app)
-    _server.serve_forever()
-
-
 @app.route("/images")
 def get_src():
     import os
@@ -54,6 +48,27 @@ def get_src():
         files = os.listdir(path + dir_name + '/')
         dic[dir_name] = files
     return http_result.dic_format(200, '', dic)
+
+
+# 获取已有图片分类
+@app.route("/getPictureCategory")
+def getPictureCategory():
+    res = api.getPictureCategory()
+    return http_result.dic_format(data=res)
+
+
+# 根据分类获取图片
+@app.route("/getPictures", methods=['get', 'post'])
+def getPictures():
+    category = request.args.get('category')
+    res = api.getPicturesWithCategory(category)
+    return http_result.dic_format(data=res)
+
+
+def start():
+    app.run()
+    # _server = pywsgi.WSGIServer(('0.0.0.0', 5000), app)
+    # _server.serve_forever()
 
 
 if __name__ == "__main__":
