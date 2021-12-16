@@ -77,7 +77,7 @@ def delete_info(db, sql_str):
     # 关闭数据库连接
     cursor.close()
     db.close()
-    return [result]
+    return result
 
 
 # 更新数据
@@ -97,4 +97,4 @@ def update_info(db, sql_str):
     # 关闭数据库连接
     cursor.close()
     db.close()
-    return [result]
+    return result

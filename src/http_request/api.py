@@ -1,6 +1,15 @@
 from . import mysql_use
 
 
+# 验证token
+def check_token(token):
+    sql = "select id FROM user where token = \'%s\'" % token
+    print('sql=' + sql)
+    cnn = mysql_use.connect_sql()
+    res = mysql_use.search_info(cnn, sql)
+    return res
+
+
 # 登录
 def login(username, password):
     sql = "select * FROM user where username = \'%s\' and password = \'%s\'" % (username, password)
@@ -24,7 +33,7 @@ def delete(username, password):
     sql = 'DELETE FROM user WHERE username = \'{}\''.format(username)
     print('sql=' + sql)
     cnn = mysql_use.connect_sql()
-    res = mysql_use.insert_info(cnn, sql)
+    res = mysql_use.delete_info(cnn, sql)
     return res
 
 
@@ -58,3 +67,12 @@ def getPicturesWithCategory(category):
         temp_dic = {'id': dic['id'], 'category': category, 'url': dic['url']}
         result.append(temp_dic)
     return result
+
+
+# 删除图片
+def deletePictureWithId(picture_id):
+    sql = 'DELETE FROM photo_show_images WHERE id = \'{}\''.format(picture_id)
+    print('sql=' + sql)
+    cnn = mysql_use.connect_sql()
+    res = mysql_use.delete_info(cnn, sql)
+    return res

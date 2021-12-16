@@ -4,8 +4,21 @@ from gevent import pywsgi
 
 from . import api
 from . import http_result
+from .error_code import *
 
 app = Flask(__name__)
+
+
+# 检查token
+def checkToken():
+    token = request.args.get('token')
+    if token is None:
+        return None
+    result = api.check_token(token)
+    if len(result) == 0:
+        return None
+    else:
+        return result[0]['id']
 
 
 @app.route("/login", methods=['get', 'post'])
@@ -13,16 +26,15 @@ def login():
     username = request.args.get('username')
     password = request.args.get('password')
     if username is None or password is None:
-        return http_result.dic_format(code=201, msg='Parameters are missing')
+        return http_result.dic_format(ErrorCode.CODE_201)
 
     r_list = api.login(username, password)
-    print('r_list = {}'.format(r_list))
-    result_dic = r_list[1:]
+    result_dic = r_list
 
     if result_dic is None or len(result_dic) == 0:
-        return http_result.dic_format(code=203, msg='failure')
+        return http_result.dic_format(ErrorCode.CODE_201)
     else:
-        return http_result.dic_format(code=200, msg='success', data=result_dic)
+        return http_result.dic_format(data=result_dic)
 
 
 @app.route("/")
@@ -47,12 +59,13 @@ def get_src():
     for dir_name in files_list:
         files = os.listdir(path + dir_name + '/')
         dic[dir_name] = files
-    return http_result.dic_format(200, '', dic)
+    return http_result.dic_format(data=dic)
 
 
 # 获取已有图片分类
 @app.route("/getPictureCategory")
 def getPictureCategory():
+    if checkToken() is None: return http_result.dic_format(ErrorCode.CODE_300)
     res = api.getPictureCategory()
     return http_result.dic_format(data=res)
 
@@ -60,15 +73,28 @@ def getPictureCategory():
 # 根据分类获取图片
 @app.route("/getPictures", methods=['get', 'post'])
 def getPictures():
+    if checkToken() is None: return http_result.dic_format(ErrorCode.CODE_300)
     category = request.args.get('category')
     res = api.getPicturesWithCategory(category)
     return http_result.dic_format(data=res)
 
 
+# 删除图片
+@app.route("/deletePicture", methods=['get', 'post'])
+def deletePicture():
+    if checkToken() is None: return http_result.dic_format(ErrorCode.CODE_300)
+    picture_id = request.args.get('id')
+    res = api.deletePictureWithId(picture_id)
+    code = ErrorCode.CODE_200
+    if res != 1:
+        code = ErrorCode.CODE_201
+    return http_result.dic_format(code)
+
+
 def start():
-    app.run()
-    # _server = pywsgi.WSGIServer(('0.0.0.0', 5000), app)
-    # _server.serve_forever()
+    # app.run()
+    _server = pywsgi.WSGIServer(('0.0.0.0', 5000), app)
+    _server.serve_forever()
 
 
 if __name__ == "__main__":
