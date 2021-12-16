@@ -21,7 +21,7 @@ def checkToken():
         return result[0]['id']
 
 
-@app.route("/login", methods=['get', 'post'])
+@app.route("/login", methods=['post'])
 def login():
     username = request.args.get('username')
     password = request.args.get('password')
@@ -29,6 +29,27 @@ def login():
         return http_result.dic_format(ErrorCode.CODE_201)
 
     r_list = api.login(username, password)
+    result_dic = r_list
+
+    if result_dic is None or len(result_dic) == 0:
+        return http_result.dic_format(ErrorCode.CODE_201)
+    else:
+        return http_result.dic_format(data=result_dic)
+
+
+# 第三方登录
+# platform : 1.QQ  2.微信
+@app.route("/thirdLogin", methods=['post'])
+def third_login():
+    name = request.args.get('name')
+    platform = request.args.get('platform')
+    open_id = request.args.get('openId')
+    icon = request.args.get('icon')
+    if request_has_empty(name, platform, open_id):
+        return http_result.dic_format(ErrorCode.CODE_202)
+
+    r_list = api.third_login(name, platform, open_id, icon)
+
     result_dic = r_list
 
     if result_dic is None or len(result_dic) == 0:
@@ -89,6 +110,14 @@ def deletePicture():
     if res != 1:
         code = ErrorCode.CODE_201
     return http_result.dic_format(code)
+
+
+# 判断参数缺失
+def request_has_empty(*args):
+    for a in args:
+        if a is None:
+            return True
+    return False
 
 
 def start():

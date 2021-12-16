@@ -1,3 +1,5 @@
+from pymysql import NULL
+
 from . import mysql_use
 
 
@@ -7,6 +9,7 @@ def check_token(token):
     print('sql=' + sql)
     cnn = mysql_use.connect_sql()
     res = mysql_use.search_info(cnn, sql)
+    cnn.close()
     return res
 
 
@@ -16,6 +19,7 @@ def login(username, password):
     print('sql=' + sql)
     cnn = mysql_use.connect_sql()
     res = mysql_use.search_info(cnn, sql)
+    cnn.close()
     return res
 
 
@@ -25,6 +29,30 @@ def register(username, password):
     print('sql=' + sql)
     cnn = mysql_use.connect_sql()
     res = mysql_use.insert_info(cnn, sql)
+    cnn.close()
+    return res
+
+
+# 第三方登录
+# platform : 1.QQ  2.微信
+def third_login(name, platform, open_id, icon=None):
+    # 查询是否绑定账号
+    sql = "select * FROM user_binding where open_id = \'{}\' ".format(open_id)
+    cnn = mysql_use.connect_sql()
+    res = mysql_use.search_info(cnn, sql)
+    if len(res) == 0:
+        register_sql = 'INSERT INTO user_binding(name, platfrom, open_id, icon) VALUES (\'{}\',\'{}\',\'{}\',\'{}\')'.format(
+            name, platform, open_id, icon)
+        if icon is None:
+            register_sql = 'INSERT INTO user_binding(name, platfrom, open_id) VALUES (\'{}\',\'{}\',\'{}\')'.format(
+                name, platform, open_id)
+        cnn = mysql_use.connect_sql()
+        res = mysql_use.insert_info(cnn, register_sql)
+        if res == 1:
+            res = mysql_use.search_info(cnn, sql)
+        else:
+            res = []
+    cnn.close()
     return res
 
 
@@ -34,6 +62,7 @@ def delete(username, password):
     print('sql=' + sql)
     cnn = mysql_use.connect_sql()
     res = mysql_use.delete_info(cnn, sql)
+    cnn.close()
     return res
 
 
@@ -43,6 +72,7 @@ def update(username, nickname):
     print('sql=' + sql)
     cnn = mysql_use.connect_sql()
     res = mysql_use.insert_info(cnn, sql)
+    cnn.close()
     return res
 
 
@@ -52,6 +82,7 @@ def getPictureCategory():
     print('sql=' + sql)
     cnn = mysql_use.connect_sql()
     res = mysql_use.search_info(cnn, sql)
+    cnn.close()
     return res
 
 
@@ -66,6 +97,7 @@ def getPicturesWithCategory(category):
     for dic in res:
         temp_dic = {'id': dic['id'], 'category': category, 'url': dic['url']}
         result.append(temp_dic)
+    cnn.close()
     return result
 
 
@@ -75,4 +107,5 @@ def deletePictureWithId(picture_id):
     print('sql=' + sql)
     cnn = mysql_use.connect_sql()
     res = mysql_use.delete_info(cnn, sql)
+    cnn.close()
     return res

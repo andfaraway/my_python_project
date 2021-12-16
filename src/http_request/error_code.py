@@ -6,6 +6,7 @@ class ErrorCode(Enum):
 
     CODE_200 = {200: '成功'}
     CODE_201 = {201: '失败'}
+    CODE_202 = {202: '参数缺失'}
     CODE_300 = {300: '验证失败'}
 
     @property

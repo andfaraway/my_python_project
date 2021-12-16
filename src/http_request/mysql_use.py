@@ -36,7 +36,6 @@ def search_info(db, sql_str):
     except Exception as error:
         print(error)
     cursor.close()
-    db.close()
     return result_list
 
 
@@ -51,13 +50,12 @@ def insert_info(db, sql_str):
         # 提交到数据库执行
         db.commit()
     except BaseException as error:
-        print(error)
+        print('insertError:{}'.format(error))
         # Rollback in case there is any error
         db.rollback()
     # 关闭数据库连接
     cursor.close()
-    db.close()
-    return [result]
+    return result
 
 
 # 删除数据
@@ -76,7 +74,6 @@ def delete_info(db, sql_str):
         db.rollback()
     # 关闭数据库连接
     cursor.close()
-    db.close()
     return result
 
 
@@ -96,5 +93,4 @@ def update_info(db, sql_str):
         db.rollback()
     # 关闭数据库连接
     cursor.close()
-    db.close()
     return result
