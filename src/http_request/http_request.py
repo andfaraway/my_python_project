@@ -1,10 +1,16 @@
 # coding=utf-8
+import time
+from datetime import date
+
+from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, request
 from gevent import pywsgi
 
-from . import api
+from . import api, api_push
 from . import http_result
+from .http_result import request_has_empty
 from .error_code import *
+from . import push
 
 app = Flask(__name__)
 
@@ -37,10 +43,10 @@ def login():
         return http_result.dic_format(data=result_dic)
 
 
-# 第三方登录
-# platform : 1.QQ  2.微信
+# 第三方登录  platform : 1.QQ  2.微信
 @app.route("/thirdLogin", methods=['post'])
 def third_login():
+    print(request.args)
     name = request.args.get('name')
     platform = request.args.get('platform')
     open_id = request.args.get('openId')
@@ -56,6 +62,25 @@ def third_login():
         return http_result.dic_format(ErrorCode.CODE_201)
     else:
         return http_result.dic_format(data=result_dic)
+
+
+# 注册推送 用户id：user_id, 推送id：push_token, 别名：alias
+@app.route("/registerNotification", methods=['post'])
+def registerNotification():
+    print(request.args)
+    user_id = request.args.get('user_id')
+    push_token = request.args.get('push_token')
+    alias = request.args.get('alias')
+    registration_id = request.args.get('registration_id')
+
+    r_list = api.register_notification(user_id, push_token, alias, registration_id)
+
+    result = r_list
+
+    if result == 0:
+        return http_result.dic_format(ErrorCode.CODE_201)
+    else:
+        return http_result.dic_format()
 
 
 @app.route("/")
@@ -112,16 +137,33 @@ def deletePicture():
     return http_result.dic_format(code)
 
 
-# 判断参数缺失
-def request_has_empty(*args):
-    for a in args:
-        if a is None:
-            return True
-    return False
+# 按别名推送
+def push_alias(alert):
+    res = api_push.get_alias()
+    alias = []
+    for dic in res:
+        alia = dic['alias']
+        alias.append(alia)
+    push.alias(alias, alert=alert)
+
+
+# 早晨推送
+def say_hello():
+    scheduler = BackgroundScheduler()
+
+    # 在 2019-8-30 01:00:01 运行一次 job 方法
+    # scheduler.add_job(push_alias, 'date', run_date='2021-12-22 18:16:00', args=['早啊'])
+
+    # 在 2019-08-29 22:15:00至2019-08-29 22:17:00期间，每隔1分30秒 运行一次 job 方法
+    scheduler.add_job(push_alias, 'interval', days=1, start_date='2021-12-22 08:30:00',
+                      end_date='2022-01-01 06:00:00', args=['早啊'])
+    scheduler.start()
 
 
 def start():
+    say_hello()
     # app.run()
+
     _server = pywsgi.WSGIServer(('0.0.0.0', 5000), app)
     _server.serve_forever()
 

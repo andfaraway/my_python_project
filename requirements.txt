@@ -6,3 +6,6 @@ tqdm~=4.62.3
 beautifulsoup4~=4.10.0
 requests~=2.26.0
 selenium~=4.1.0
+jpush~=3.3.9
+django-scheduler~=0.9.5
+APScheduler~=3.8.1

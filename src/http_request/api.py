@@ -33,14 +33,14 @@ def register(username, password):
     return res
 
 
-# 第三方登录
-# platform : 1.QQ  2.微信
+# 第三方登录  platform : 1.QQ  2.微信
 def third_login(name, platform, open_id, icon=None):
     # 查询是否绑定账号
     sql = "select * FROM user_binding where open_id = \'{}\' ".format(open_id)
     cnn = mysql_use.connect_sql()
     res = mysql_use.search_info(cnn, sql)
     if len(res) == 0:
+        print('注册：{},{},{},{}'.format(name, platform, open_id, icon))
         register_sql = 'INSERT INTO user_binding(name, platfrom, open_id, icon) VALUES (\'{}\',\'{}\',\'{}\',\'{}\')'.format(
             name, platform, open_id, icon)
         if icon is None:
@@ -48,8 +48,10 @@ def third_login(name, platform, open_id, icon=None):
                 name, platform, open_id)
         cnn = mysql_use.connect_sql()
         res = mysql_use.insert_info(cnn, register_sql)
+        print('注册结果：{},{},{},{}', name, platform, open_id, icon)
         if res == 1:
             res = mysql_use.search_info(cnn, sql)
+            print(res)
         else:
             res = []
     cnn.close()
