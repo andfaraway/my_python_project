@@ -13,7 +13,7 @@ con.read(file, encoding='utf-8')
 items = con.items('mysql')
 # 可以通过dict方法转换为字典
 dic = dict(items)
-print(dic)
+
 # 读取配置
 host = dic.get('host')
 user = dic.get('user')

@@ -155,11 +155,11 @@ def say_hello():
 
 
 def start():
-    # say_morning(['biubiubiu'], 'hello')
-    app.run()
+    # app.run()
 
-    # _server = pywsgi.WSGIServer(('0.0.0.0', 5000), app)
-    # _server.serve_forever()
+    say_morning(['biubiubiu'], 'hello')
+    _server = pywsgi.WSGIServer(('0.0.0.0', 5000), app)
+    _server.serve_forever()
 
 
 if __name__ == "__main__":

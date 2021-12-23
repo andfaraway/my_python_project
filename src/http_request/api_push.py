@@ -30,6 +30,7 @@ def register_notification(**kwargs):
             push_token, alias, registration_id, identifier)
         print('已注册，更新sql=' + sql)
         res = mysql_use.update_info(cnn, sql)
+        res = 1
     cnn.close()
     return res
 
