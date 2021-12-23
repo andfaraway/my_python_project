@@ -67,16 +67,8 @@ def third_login():
 # 注册推送 用户id：user_id, 推送id：push_token, 别名：alias
 @app.route("/registerNotification", methods=['post'])
 def registerNotification():
-    print(request.args)
-    user_id = request.args.get('user_id')
-    push_token = request.args.get('push_token')
-    alias = request.args.get('alias')
-    registration_id = request.args.get('registration_id')
-
-    r_list = api.register_notification(user_id, push_token, alias, registration_id)
-
-    result = r_list
-
+    result = api_push.register_notification(**request.args)
+    print(result)
     if result == 0:
         return http_result.dic_format(ErrorCode.CODE_201)
     else:
@@ -137,35 +129,37 @@ def deletePicture():
     return http_result.dic_format(code)
 
 
-# 按别名推送
-def push_alias(alert):
-    res = api_push.get_alias()
-    alias = []
-    for dic in res:
-        alia = dic['alias']
-        alias.append(alia)
-    push.alias(alias, alert=alert)
-
-
 # 早晨推送
-def say_hello():
+def say_morning(alias, alert):
     scheduler = BackgroundScheduler()
 
     # 在 2019-8-30 01:00:01 运行一次 job 方法
     # scheduler.add_job(push_alias, 'date', run_date='2021-12-22 18:16:00', args=['早啊'])
 
     # 在 2019-08-29 22:15:00至2019-08-29 22:17:00期间，每隔1分30秒 运行一次 job 方法
-    scheduler.add_job(push_alias, 'interval', days=1, start_date='2021-12-22 08:30:00',
-                      end_date='2022-01-01 06:00:00', args=['早啊'])
+    scheduler.add_job(api_push.push_alias, 'interval', days=1, start_date='2021-12-22 08:30:00',
+                      end_date='2022-01-01 06:00:00', args=[alias, alert])
     scheduler.start()
 
 
-def start():
-    say_hello()
-    # app.run()
+# 打招呼
+@app.route("/sayHello", methods=['get', 'post'])
+def say_hello():
+    alias = request.args.get('alias').split(',')
+    alert = request.args.get('alert')
+    if http_result.request_has_empty(alias, alert):
+        return http_result.dic_format(ErrorCode.CODE_202)
 
-    _server = pywsgi.WSGIServer(('0.0.0.0', 5000), app)
-    _server.serve_forever()
+    api_push.push_alias(alias=alias, alert=alert)
+    return http_result.dic_format()
+
+
+def start():
+    # say_morning(['biubiubiu'], 'hello')
+    app.run()
+
+    # _server = pywsgi.WSGIServer(('0.0.0.0', 5000), app)
+    # _server.serve_forever()
 
 
 if __name__ == "__main__":

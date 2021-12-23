@@ -15,6 +15,7 @@ _jpush.set_logging("DEBUG")
 def alias(alias_list, alert=''):
     push = _jpush.create_push()
     alias1 = {"alias": alias_list}
+    print('audience = {}'.format(alias1))
     push.audience = alias1
 
     push.notification = jpush.notification(alert=alert)

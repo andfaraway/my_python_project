@@ -1,14 +1,28 @@
+import os
+
 import pymysql
-import re
+import configparser
+
+file = os.getcwd() + '/config.ini'
+# 创建配置文件对象
+con = configparser.ConfigParser()
+# 读取文件
+con.read(file, encoding='utf-8')
+
+# 获取特定section 返回结果为元组
+items = con.items('mysql')
+# 可以通过dict方法转换为字典
+dic = dict(items)
+print(dic)
+# 读取配置
+host = dic.get('host')
+user = dic.get('user')
+passwd = dic.get('passwd')
+db = dic.get('db')
 
 
 # 打开数据库连接
 def connect_sql():
-    host = '1.14.252.115'
-    user = 'root'
-    passwd = 'lbsmysql'
-    db = 'nothing'
-
     conn = pymysql.connect(host=host, user=user, passwd=passwd, )
     conn.select_db(db)
     return conn
@@ -49,7 +63,7 @@ def insert_info(db, sql_str):
         result = cursor.execute(sql_str)
         # 提交到数据库执行
         db.commit()
-    except BaseException as error:
+    except Exception as error:
         print('insertError:{}'.format(error))
         # Rollback in case there is any error
         db.rollback()
