@@ -1,7 +1,7 @@
 import jpush
 from jpush import common
 
-import config
+from src import config
 
 global j_push
 j_push = None

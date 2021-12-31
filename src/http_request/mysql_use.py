@@ -1,7 +1,7 @@
 import pymysql
 
 # 读取配置
-import config
+from src import config
 
 
 # 打开数据库连接

@@ -5,8 +5,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, request
 from gevent import pywsgi
 
-import config
-from http_request import api
+from src import config
+from . import api
 from . import api_push
 from . import http_result
 from .error_code import *
