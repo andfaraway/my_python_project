@@ -163,6 +163,27 @@ def say_hello():
     return http_result.dic_format()
 
 
+# 检查更新
+@app.route("/checkUpdate", methods=['get', 'post'])
+def checkUpdate():
+    platform = request.args.get('platform')
+    version = request.args.get('version')
+    if http_result.request_has_empty(platform, version):
+        return http_result.dic_format(ErrorCode.CODE_202)
+    data = api.checkUpdate(platform)[0]
+
+    update = False
+    server_version: list = data['version']
+    arr_app = version.split('.')
+    arr_server = server_version.split('.')
+    for i in range(len(arr_app)):
+        if int(arr_app[i]) < int(arr_server[i]):
+            update = True
+            break
+    data['update'] = update
+    return http_result.dic_format(data=data)
+
+
 def start():
     # 启动接口服务
     if config.isDebug:

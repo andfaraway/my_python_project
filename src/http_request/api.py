@@ -111,3 +111,12 @@ def deletePictureWithId(picture_id):
     res = mysql_use.delete_info(cnn, sql)
     cnn.close()
     return res
+
+
+# 检查更新
+def checkUpdate(platform):
+    sql = "select * FROM  version_update where platform = \'{}\'".format(platform)
+    cnn = mysql_use.connect_sql()
+    res = mysql_use.search_info(cnn, sql)
+    cnn.close()
+    return res
