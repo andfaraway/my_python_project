@@ -1,28 +1,16 @@
-import os
-
 import pymysql
-import configparser
-
-file = os.getcwd() + '/config.ini'
-# 创建配置文件对象
-con = configparser.ConfigParser()
-# 读取文件
-con.read(file, encoding='utf-8')
-
-# 获取特定section 返回结果为元组
-items = con.items('mysql')
-# 可以通过dict方法转换为字典
-dic = dict(items)
 
 # 读取配置
-host = dic.get('host')
-user = dic.get('user')
-passwd = dic.get('passwd')
-db = dic.get('db')
+import config
 
 
 # 打开数据库连接
 def connect_sql():
+    item = 'mysql'
+    host = config.get('host', item)
+    user = config.get('user', item)
+    passwd = config.get('passwd', item)
+    db = config.get('db', item)
     conn = pymysql.connect(host=host, user=user, passwd=passwd, )
     conn.select_db(db)
     return conn

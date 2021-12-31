@@ -51,5 +51,7 @@ def get_alias():
 
 
 # 按别名推送
-def push_alias(alias, alert):
-    push.alias(alias, alert=alert)
+def push_alias(alias, alert, title=None):
+    if push.jpush is None:
+        push.init()
+    push.alias(alias, alert=alert, title=title)

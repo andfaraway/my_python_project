@@ -1,16 +1,16 @@
 # coding=utf-8
-import time
-from datetime import date
+import socket
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, request
 from gevent import pywsgi
 
-from . import api, api_push
+import config
+from http_request import api
+from . import api_push
 from . import http_result
-from .http_result import request_has_empty
 from .error_code import *
-from . import push
+from .http_result import request_has_empty
 
 app = Flask(__name__)
 
@@ -142,6 +142,15 @@ def say_morning(alias, alert):
     scheduler.start()
 
 
+def happy_new_year():
+    scheduler = BackgroundScheduler(timezone='Asia/Shanghai')
+    scheduler.add_job(api_push.push_alias, 'date', run_date='2022-12-31 23:59:59',
+                      args=[['Ivy'], 'Happy New Year！🎇 \n娜娜 我爱你🌹', '❤️❤️❤️'])
+    scheduler.add_job(api_push.push_alias, 'date', run_date='2022-12-31 23:59:59',
+                      args=[['biubiubiu'], 'Happy New Year！🎇 \n新年快乐 我也爱你🌹', '❤️❤️❤️'])
+    scheduler.start()
+
+
 # 打招呼
 @app.route("/sayHello", methods=['get', 'post'])
 def say_hello():
@@ -155,11 +164,12 @@ def say_hello():
 
 
 def start():
-    # app.run()
-
-    say_morning(['biubiubiu'], 'hello')
-    _server = pywsgi.WSGIServer(('0.0.0.0', 5000), app)
-    _server.serve_forever()
+    # 启动接口服务
+    if config.isDebug:
+        app.run('0.0.0.0', 5000)
+    else:
+        _server = pywsgi.WSGIServer(('0.0.0.0', 5000), app)
+        _server.serve_forever()
 
 
 if __name__ == "__main__":

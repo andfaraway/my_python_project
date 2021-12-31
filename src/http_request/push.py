@@ -1,30 +1,57 @@
 import jpush
 from jpush import common
-from . import mysql_use
 
-app_key = u'713db5486c35b95a967e3b3a'
-master_secret = u'7dbfd6784418f04271c2e12a'
+import config
 
-dev_key = u'8d12ba4d3a1e51459203a85a'
-dev_secret = u'd675ae0745af28ed6d95f9f3'
-
-_jpush = jpush.JPush(app_key, master_secret)
-_jpush.set_logging("DEBUG")
+global j_push
+j_push = None
 
 
-def alias(alias_list, alert=''):
-    push = _jpush.create_push()
-    alias1 = {"alias": alias_list}
-    print('audience = {}'.format(alias1))
-    push.audience = alias1
+def _jpush():
+    if j_push is None:
+        init()
+    return j_push
 
-    push.notification = jpush.notification(alert=alert)
+
+def init():
+    app_key = config.get('app_key', 'push')
+    master_secret = config.get('master_secret', 'push')
+    global j_push
+    j_push = jpush.JPush(app_key, master_secret)
+    if config.isDebug:
+        j_push.set_logging("DEBUG")
+    return j_push
+
+
+def alias(alias_list, alert='', title='nothing', ):
+    push = _jpush().create_push()
+
+    if type(alias_list) == str:
+        alias_list = [alias_list]
+    push.audience = {"alias": alias_list}
+    if config.isDebug:
+        push.options = {"apns_production": not config.isDebug}
+
+    ios_alert = {
+        "alert": {
+            "title": title,
+            # "subtitle": alert
+            "body": alert
+        },
+        "sound": "sound.caf",
+        "badge": "+1",
+        "extras": {
+            "news_id": 134,
+            "my_key": "a value"
+        }
+    }
+    push.notification = jpush.notification(alert=alert, ios=ios_alert)
     push.platform = jpush.all_
     push.send()
 
 
 def push_all():
-    push = _jpush.create_push()
+    push = _jpush().create_push()
     push.audience = jpush.all_
     push.notification = jpush.notification(alert="!hello python jpush api")
     push.platform = jpush.all_
@@ -41,7 +68,7 @@ def push_all():
 
 
 def audience():
-    push = _jpush.create_push()
+    push = _jpush().create_push()
 
     push.audience = jpush.audience(
         jpush.tag("tag1", "tag2"),
@@ -55,7 +82,7 @@ def audience():
 
 
 def notification():
-    push = _jpush.create_push()
+    push = _jpush().create_push()
 
     push.audience = jpush.all_
     push.platform = jpush.all_
@@ -71,7 +98,7 @@ def notification():
 
 
 def options():
-    push = _jpush.create_push()
+    push = _jpush().create_push()
     push.audience = jpush.all_
     push.notification = jpush.notification(alert="Hello, world!")
     push.platform = jpush.all_
@@ -80,7 +107,7 @@ def options():
 
 
 def platfrom_msg():
-    push = _jpush.create_push()
+    push = _jpush().create_push()
     push.audience = jpush.all_
     ios_msg = jpush.ios(alert="Hello, IOS JPush!", badge="+1", sound="a.caf", extras={'k1': 'v1'})
     android_msg = jpush.android(alert="Hello, android msg")
@@ -91,7 +118,7 @@ def platfrom_msg():
 
 
 def silent():
-    push = _jpush.create_push()
+    push = _jpush().create_push()
     push.audience = jpush.all_
     ios_msg = jpush.ios(alert="Hello, IOS JPush!", badge="+1", extras={'k1': 'v1'}, sound_disable=True)
     android_msg = jpush.android(alert="Hello, android msg")
@@ -101,7 +128,7 @@ def silent():
 
 
 def sms():
-    push = _jpush.create_push()
+    push = _jpush().create_push()
     push.audience = jpush.all_
     push.notification = jpush.notification(alert="a sms message from python jpush api")
     push.platform = jpush.all_
@@ -111,7 +138,7 @@ def sms():
 
 
 def validate():
-    push = _jpush.create_push()
+    push = _jpush().create_push()
     push.audience = jpush.all_
     push.notification = jpush.notification(alert="Hello, world!")
     push.platform = jpush.all_
