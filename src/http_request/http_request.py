@@ -142,12 +142,10 @@ def say_morning(alias, alert):
     scheduler.start()
 
 
-def happy_new_year():
+def happy_morning():
     scheduler = BackgroundScheduler(timezone='Asia/Shanghai')
-    scheduler.add_job(api_push.push_alias, 'date', run_date='2022-12-31 23:59:59',
-                      args=[['Ivy'], 'Happy New Year！🎇 \n娜娜 我爱你🌹', '❤️❤️❤️'])
-    scheduler.add_job(api_push.push_alias, 'date', run_date='2022-12-31 23:59:59',
-                      args=[['biubiubiu'], 'Happy New Year！🎇 \n新年快乐 我也爱你🌹', '❤️❤️❤️'])
+    scheduler.add_job(api_push.push_alias, 'date', run_date='2022-01-04 09:28:00',
+                      args=[['Ivy'], '爱你哟😘', '❤️❤️❤️'])
     scheduler.start()
 
 
