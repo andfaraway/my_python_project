@@ -34,14 +34,38 @@ def register(username, password):
 
 
 # 第三方登录  platform : 1.QQ  2.微信
-def third_login(name, platform, open_id, icon=None):
+def third_login(name, platform=1, open_id=None, icon=None):
+    cnn = mysql_use.connect_sql()
+
+    # 插入user表
+    # 查询openid是否绑定userid
+    sql = "select * FROM user where qq_openid = \'{}\' ".format(open_id)
+    if platform == 2:
+        sql = "select * FROM user where wechat_openid = \'{}\' ".format(open_id)
+    res = mysql_use.search_info(cnn, sql)
+    if len(res) == 0:
+        # 未绑定,新注册
+        sql = 'INSERT INTO user(username, password, qq_openid) VALUES (\'{}\',\'{}\',\'{}\')'.format(name, '123456',
+                                                                                                     open_id)
+        print(' 未绑定,新注册 sql=' + sql)
+        res = mysql_use.insert_info(cnn, sql)
+    # 返回用户信息
+    sql = "select * FROM user where qq_openid = \'{}\' ".format(open_id)
+    if platform == 2:
+        sql = "select * FROM user where wechat_openid = \'{}\' ".format(open_id)
+    res = mysql_use.search_info(cnn, sql)
+
+    if len(res) == 0:
+        return None
+    user_id = res[0]['id']
+
     # 查询是否绑定账号
     sql = "select * FROM user_binding where open_id = \'{}\' ".format(open_id)
-    cnn = mysql_use.connect_sql()
     res = mysql_use.search_info(cnn, sql)
     if len(res) == 0:
         print('注册：{},{},{},{}'.format(name, platform, open_id, icon))
-        register_sql = 'INSERT INTO user_binding(name, platfrom, open_id, icon) VALUES (\'{}\',\'{}\',\'{}\',\'{}\')'.format(
+        register_sql = 'INSERT INTO user_binding(user_id,name, platfrom, open_id, icon) VALUES (\'{}\',\'{}\',\'{}\',\'{}\',\'{}\')'.format(
+            user_id,
             name, platform, open_id, icon)
         if icon is None:
             register_sql = 'INSERT INTO user_binding(name, platfrom, open_id) VALUES (\'{}\',\'{}\',\'{}\')'.format(
@@ -54,6 +78,11 @@ def third_login(name, platform, open_id, icon=None):
             print(res)
         else:
             res = []
+    # 获取头像和姓名
+    if len(res) == 0:
+        cnn.close()
+        return None
+
     cnn.close()
     return res
 

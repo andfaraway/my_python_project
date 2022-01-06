@@ -46,7 +46,6 @@ def login():
 # 第三方登录  platform : 1.QQ  2.微信
 @app.route("/thirdLogin", methods=['post'])
 def third_login():
-    print(request.args)
     name = request.args.get('name')
     platform = request.args.get('platform')
     open_id = request.args.get('openId')
@@ -61,7 +60,10 @@ def third_login():
     if result_dic is None or len(result_dic) == 0:
         return http_result.dic_format(ErrorCode.CODE_201)
     else:
-        return http_result.dic_format(data=result_dic)
+        dic: map = result_dic[0]
+        dic['openId'] = dic['open_id']
+        del dic['open_id']
+        return http_result.dic_format(data=[dic])
 
 
 # 注册推送 用户id：user_id, 推送id：push_token, 别名：alias
@@ -137,17 +139,15 @@ def say_morning(alias, alert):
     # scheduler.add_job(push_alias, 'date', run_date='2021-12-22 18:16:00', args=['早啊'])
 
     # 在 2019-08-29 22:15:00至2019-08-29 22:17:00期间，每隔1分30秒 运行一次 job 方法
-    scheduler.add_job(api_push.push_alias, 'interval', days=1, start_date='2021-12-22 08:30:00',
-                      end_date='2022-01-01 06:00:00', args=[alias, alert])
+    scheduler.add_job(api_push.push_alias, 'interval', days=1, start_date='2022-01-05 07:30:00',
+                      end_date='2022-05-01 06:00:00', args=[alias, alert])
     scheduler.start()
 
 
-def happy_new_year():
+def happy_morning():
     scheduler = BackgroundScheduler(timezone='Asia/Shanghai')
-    scheduler.add_job(api_push.push_alias, 'date', run_date='2022-12-31 23:59:59',
-                      args=[['Ivy'], 'Happy New Year！🎇 \n娜娜 我爱你🌹', '❤️❤️❤️'])
-    scheduler.add_job(api_push.push_alias, 'date', run_date='2022-12-31 23:59:59',
-                      args=[['biubiubiu'], 'Happy New Year！🎇 \n新年快乐 我也爱你🌹', '❤️❤️❤️'])
+    scheduler.add_job(api_push.push_alias, 'date', run_date='2022-01-05 09:28:00',
+                      args=[['Ivy'], '爱你哟😘', '❤️❤️❤️'])
     scheduler.start()
 
 
@@ -160,6 +160,18 @@ def say_hello():
         return http_result.dic_format(ErrorCode.CODE_202)
 
     api_push.push_alias(alias=alias, alert=alert)
+    return http_result.dic_format()
+
+
+# 通知所有人
+@app.route("/sayHelloAll", methods=['get', 'post'])
+def sayHelloAll():
+    title = request.args.get('title')
+    alert = request.args.get('alert')
+    if http_result.request_has_empty(title, alert):
+        return http_result.dic_format(ErrorCode.CODE_202)
+
+    api_push.push_all(alert=alert, title=title, )
     return http_result.dic_format()
 
 
@@ -181,7 +193,7 @@ def checkUpdate():
             update = True
             break
     data['update'] = update
-    return http_result.dic_format(data=data)
+    return http_result.dic_format(data=[data])
 
 
 def start():

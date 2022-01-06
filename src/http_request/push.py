@@ -50,10 +50,25 @@ def alias(alias_list, alert='', title='nothing', ):
     push.send()
 
 
-def push_all():
+def push_all(alert='', title='nothing', ):
     push = _jpush().create_push()
     push.audience = jpush.all_
-    push.notification = jpush.notification(alert="!hello python jpush api")
+    if config.isDebug:
+        push.options = {"apns_production": not config.isDebug}
+    ios_alert = {
+        "alert": {
+            "title": title,
+            # "subtitle": alert
+            "body": alert
+        },
+        "sound": "sound.caf",
+        "badge": "+1",
+        "extras": {
+            "news_id": 134,
+            "my_key": "a value"
+        }
+    }
+    push.notification = jpush.notification(alert=alert, ios=ios_alert)
     push.platform = jpush.all_
     try:
         response = push.send()
