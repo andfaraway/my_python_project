@@ -53,11 +53,10 @@ def third_login(name, platform=1, open_id=None, icon=None):
     sql = "select * FROM user where qq_openid = \'{}\' ".format(open_id)
     if platform == 2:
         sql = "select * FROM user where wechat_openid = \'{}\' ".format(open_id)
-    res = mysql_use.search_info(cnn, sql)
-
-    if len(res) == 0:
+    user_res = mysql_use.search_info(cnn, sql)
+    if len(user_res) == 0:
         return None
-    user_id = res[0]['id']
+    user_id = user_res[0]['id']
 
     # 查询是否绑定账号
     sql = "select * FROM user_binding where open_id = \'{}\' ".format(open_id)
@@ -75,16 +74,14 @@ def third_login(name, platform=1, open_id=None, icon=None):
         print('注册结果：{},{},{},{}', name, platform, open_id, icon)
         if res == 1:
             res = mysql_use.search_info(cnn, sql)
-            print(res)
         else:
             res = []
     # 获取头像和姓名
     if len(res) == 0:
         cnn.close()
         return None
-
     cnn.close()
-    return res
+    return user_res
 
 
 # 注销

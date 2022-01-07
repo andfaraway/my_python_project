@@ -1,8 +1,8 @@
 import configparser
 import os
 
-isDebug = True
-# isDebug = False
+# isDebug = True
+isDebug = False
 
 info = {}
 
