@@ -10,15 +10,11 @@ def register_notification(**kwargs):
     alias = kwargs.get('alias')
     registration_id = kwargs.get('registration_id')
     identifier = kwargs.get('identifier')
-
-    if identifier is None or identifier == '':
-        print('identifier null:{}'.format(identifier))
     cnn = mysql_use.connect_sql()
     # 查询是否注册
     sql = "select * FROM  notification where identifier = \'{}\'".format(identifier)
     print('sql=' + sql)
     res = mysql_use.search_info(cnn, sql)
-    print('res={}'.format(res))
     # 未注册，注册
     if len(res) == 0:
         sql = 'INSERT INTO notification(user_id, push_token, alias, registration_id, identifier) VALUES (\'{}\',\'{}\',\'{}\',\'{}\',\'{}\')'.format(
@@ -33,7 +29,6 @@ def register_notification(**kwargs):
             push_token, alias, registration_id, identifier)
         print('已注册，更新sql=' + sql)
         res = mysql_use.update_info(cnn, sql)
-        res = 1
     cnn.close()
     return res
 

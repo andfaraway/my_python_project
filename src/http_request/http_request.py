@@ -54,13 +54,14 @@ def third_login():
         return http_result.dic_format(ErrorCode.CODE_202)
 
     r_list = api.third_login(name, platform, open_id, icon)
-
-    result_dic = r_list
-
-    if result_dic is None or len(result_dic) == 0:
+    print('登录结果：{}'.format(r_list))
+    if r_list is None or len(r_list) == 0:
         return http_result.dic_format(ErrorCode.CODE_201)
     else:
-        return http_result.dic_format(data=result_dic)
+        dic: map = r_list[0]
+        dic['userId'] = dic['id'];
+        print(dic)
+        return http_result.dic_format(data=[dic])
 
 
 # 注册推送 用户id：user_id, 推送id：push_token, 别名：alias
