@@ -54,13 +54,12 @@ def third_login():
         return http_result.dic_format(ErrorCode.CODE_202)
 
     r_list = api.third_login(name, platform, open_id, icon)
-    print('登录结果：{}'.format(r_list))
     if r_list is None or len(r_list) == 0:
         return http_result.dic_format(ErrorCode.CODE_201)
     else:
         dic: map = r_list[0]
-        dic['userId'] = dic['id'];
-        print(dic)
+        dic['userId'] = dic['id']
+        del dic['id']
         return http_result.dic_format(data=[dic])
 
 
