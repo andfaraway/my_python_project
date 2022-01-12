@@ -34,57 +34,37 @@ def register(username, password):
 
 
 # 第三方登录  platform : 1.QQ  2.微信
-def third_login(name, platform=1, open_id=None, icon=None):
+def third_login(name, platform=1, open_id=None, avatar=None):
     cnn = mysql_use.connect_sql()
 
-    # 插入user表
-    # 查询openid是否绑定userid
-    sql = "select * FROM user where qq_openid = \'{}\' ".format(open_id)
-    if platform == 2:
-        sql = "select * FROM user where wechat_openid = \'{}\' ".format(open_id)
-    res = mysql_use.search_info(cnn, sql)
-    if len(res) == 0:
-        # 未绑定,新注册
-        sql = 'INSERT INTO user(username, password, qq_openid) VALUES (\'{}\',\'{}\',\'{}\')'.format(name, '123456',
-                                                                                                     open_id)
-        print(' 未绑定,新注册 sql=' + sql)
-        res = mysql_use.insert_info(cnn, sql)
-    # 返回用户信息
-    sql = "select * FROM user where qq_openid = \'{}\' ".format(open_id)
-    if platform == 2:
-        sql = "select * FROM user where wechat_openid = \'{}\' ".format(open_id)
-    res = mysql_use.search_info(cnn, sql)
-
-    if len(res) == 0:
-        return None
-    user_id = res[0]['id']
-
-    # 查询是否绑定账号
+    # 1.查询绑定关系
     sql = "select * FROM user_binding where open_id = \'{}\' ".format(open_id)
     res = mysql_use.search_info(cnn, sql)
-    if len(res) == 0:
-        print('注册：{},{},{},{}'.format(name, platform, open_id, icon))
-        register_sql = 'INSERT INTO user_binding(user_id,name, platfrom, open_id, icon) VALUES (\'{}\',\'{}\',\'{}\',\'{}\',\'{}\')'.format(
-            user_id,
-            name, platform, open_id, icon)
-        if icon is None:
-            register_sql = 'INSERT INTO user_binding(name, platfrom, open_id) VALUES (\'{}\',\'{}\',\'{}\')'.format(
-                name, platform, open_id)
-        cnn = mysql_use.connect_sql()
-        res = mysql_use.insert_info(cnn, register_sql)
-        print('注册结果：{},{},{},{}', name, platform, open_id, icon)
-        if res == 1:
-            res = mysql_use.search_info(cnn, sql)
-            print(res)
-        else:
-            res = []
-    # 获取头像和姓名
-    if len(res) == 0:
-        cnn.close()
-        return None
 
-    cnn.close()
-    return res
+    if len(res) == 0:
+        # 绑定表中没有，创建新账户
+        sql = 'INSERT INTO user(username,nick_name, password, avatar) VALUES (\'{}\',\'{}\',\'{}\',\'{}\')'.format(name,
+                                                                                                                   name,
+                                                                                                                   '123456',
+                                                                                                                   avatar)
+        mysql_use.insert_info(cnn, sql)
+
+        sql = "select * FROM user where username = \'{}\' ".format(name)
+        res = mysql_use.search_info(cnn, sql)
+        print('res={}'.format(res))
+        # 新账户关联绑定表
+        user_id = res[0]['id']
+        sql = 'INSERT INTO user_binding(user_id, open_id, platfrom) VALUES (\'{}\',\'{}\',\'{}\')'.format(user_id,
+                                                                                                          open_id,
+                                                                                                          platform)
+        mysql_use.insert_info(cnn, sql)
+        return res
+
+    else:
+        user_id = res[0]['user_id']
+        sql = "select * FROM user where id = \'{}\' ".format(user_id)
+        res = mysql_use.search_info(cnn, sql)
+        return res
 
 
 # 注销

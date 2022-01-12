@@ -1,10 +1,23 @@
 import configparser
 import os
+import socket
 
 isDebug = True
+
 # isDebug = False
 
 info = {}
+
+
+# 查询本机ip地址
+def get_host_ip():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(('8.8.8.8', 80))
+        ip = s.getsockname()[0]
+    finally:
+        s.close()
+    return ip
 
 
 def init():
@@ -20,6 +33,10 @@ def init():
         value = dict(read_info[key])
         global info
         info[key] = value
+    global isDebug
+    if get_host_ip() == '1.14.252.115':
+        isDebug = False
+    print('isDebug:{}'.format(isDebug))
 
 
 def get(key, item='default'):

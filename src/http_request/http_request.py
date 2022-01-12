@@ -133,11 +133,22 @@ def say_morning(alias, alert):
     scheduler = BackgroundScheduler()
 
     # 在 2019-8-30 01:00:01 运行一次 job 方法
-    # scheduler.add_job(push_alias, 'date', run_date='2021-12-22 18:16:00', args=['早啊'])
+    scheduler.add_job(api_push.push_alias, 'date', run_date='2021-12-22 18:16:00', args=[alias, alert])
 
     # 在 2019-08-29 22:15:00至2019-08-29 22:17:00期间，每隔1分30秒 运行一次 job 方法
     scheduler.add_job(api_push.push_alias, 'interval', days=1, start_date='2021-12-22 08:30:00',
                       end_date='2022-01-01 06:00:00', args=[alias, alert])
+    scheduler.start()
+
+
+# 煮蛋提醒
+def steam_egg():
+    scheduler = BackgroundScheduler()
+    # 在 2019-08-29 22:15:00至2019-08-29 22:17:00期间，每隔1分30秒 运行一次 job 方法
+    # scheduler.add_job(api_push.push_alias, 'interval', days=1, start_date='2022-01-01 07:19:00',
+    #                   end_date='2022-01-01 06:00:00', args=[['Ivy'], '记得蒸蛋哦🥚 ', 'Good Morning！'])
+    scheduler.add_job(api_push.push_all, 'interval', days=1, start_date='2022-01-01 07:15:00',
+                      end_date='2024-01-01 06:00:00', args=['记得蒸蛋哦🥚 ', 'Good Morning！'])
     scheduler.start()
 
 
