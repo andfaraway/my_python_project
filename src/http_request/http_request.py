@@ -74,6 +74,14 @@ def registerNotification():
         return http_result.dic_format()
 
 
+# 获取所有消息
+@app.route("/getMessages", methods=['post'])
+def getMessages():
+    alias = request.args.get('alias')
+    r_list = api_push.get_messages(alias)
+    return http_result.dic_format(data=r_list)
+
+
 @app.route("/")
 def main_func():
     return "Hello World!"

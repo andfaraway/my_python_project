@@ -11,21 +11,12 @@ def register_notification(**kwargs):
     registration_id = kwargs.get('registration_id')
     identifier = kwargs.get('identifier')
     cnn = mysql_use.connect_sql()
-    # 查询是否注册
-    sql = "select * FROM  notification where identifier = \'{}\'".format(identifier)
-    res = mysql_use.search_info(cnn, sql)
-    # 未注册，注册
-    if len(res) == 0:
-        sql = 'INSERT INTO notification(user_id, push_token, alias, registration_id, identifier) VALUES (\'{}\',\'{}\',\'{}\',\'{}\',\'{}\')'.format(
-            user_id,
-            push_token, alias, registration_id, identifier)
-        res = mysql_use.insert_info(cnn, sql)
-    else:
-        # 已注册，更新
-        sql = 'UPDATE notification SET user_id = \'{}\',push_token = \'{}\',alias = \'{}\',registration_id = \'{}\' WHERE identifier = \'{}\''.format(
-            user_id,
-            push_token, alias, registration_id, identifier)
-        mysql_use.update_info(cnn, sql)
+
+    # 插入数据表
+    sql = 'INSERT INTO notification(user_id, push_token, alias, registration_id, identifier) VALUES (\'{}\',\'{}\',\'{}\',\'{}\',\'{}\')'.format(
+        user_id,
+        push_token, alias, registration_id, identifier)
+    res = mysql_use.insert_info(cnn, sql)
     cnn.close()
     return res
 
@@ -51,9 +42,33 @@ def push_alias(alias, alert, title=None):
         push.init()
     push.alias(alias, alert=alert, title=title)
 
+    # 消息添加到数据库
+    sql = 'INSERT INTO message(title, content, type, alias) VALUES (\'{}\',\'{}\',\'{}\',\'{}\')'.format(title, alert,
+                                                                                                         2, alias[0])
+    print(alias[0])
+    cnn = mysql_use.connect_sql()
+    mysql_use.insert_info(cnn, sql)
+    cnn.close()
+
 
 # 推送全部
 def push_all(alert='', title='nothing', ):
     if push.jpush is None:
         push.init()
     push.push_all(alert=alert, title=title)
+
+    # 消息添加到数据库
+    sql = 'INSERT INTO message(title, content, type) VALUES (\'{}\',\'{}\',\'{}\')'.format(title, alert,
+                                                                                           1)
+    cnn = mysql_use.connect_sql()
+    mysql_use.insert_info(cnn, sql)
+    cnn.close()
+
+
+# 获取推送消息
+def get_messages(alias=None):
+    sql = "select * FROM  message where alias = \'{}\' or type = 1".format(alias)
+    cnn = mysql_use.connect_sql()
+    res = mysql_use.search_info(cnn, sql)
+    cnn.close()
+    return res
