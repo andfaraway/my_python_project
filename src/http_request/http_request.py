@@ -86,9 +86,9 @@ def getMessages():
     # 将date转换成时间戳传给客户端
     try:
         for dic in r_list:
-            time: datetime.datetime = dic['time']
+            time: datetime.datetime = dic['date']
             time_str = str(time.timestamp()).split('.')[0]
-        dic['time'] = time_str
+            dic['date'] = time_str
     except BaseException as exception:
         print(exception)
     return http_result.dic_format(data=r_list)
@@ -99,13 +99,15 @@ def getMessages():
 def addFavorite():
     userid = request.args.get('userid')
     content = request.args.get('content')
-    source = request.args.get('from')
+    source = request.args.get('source')
     if request_has_empty(userid, content):
         return http_result.dic_format(ErrorCode.CODE_202)
 
     res = api.addFavorite(userid, content, source)
     if res == 1:
         return http_result.dic_format()
+    elif type(res) == list:
+        return http_result.dic_format(ErrorCode.CODE_201, msg='已收藏')
     else:
         return http_result.dic_format(ErrorCode.CODE_201)
 
@@ -116,8 +118,16 @@ def getFavorite():
     userid = request.args.get('userid')
     if request_has_empty(userid):
         return http_result.dic_format(ErrorCode.CODE_202)
-    res = api.getFavorite(userid)
-    return http_result.dic_format(data=res)
+    r_list = api.getFavorite(userid)
+    # 将date转换成时间戳传给客户端
+    try:
+        for dic in r_list:
+            time: datetime.datetime = dic['date']
+            time_str = str(time.timestamp()).split('.')[0]
+            dic['date'] = time_str
+    except BaseException as exception:
+        print(exception)
+    return http_result.dic_format(data=r_list)
 
 
 # 删除收藏
@@ -132,8 +142,6 @@ def deleteFavorite():
         return http_result.dic_format()
     else:
         return http_result.dic_format(ErrorCode.CODE_201)
-
-
 
 
 @app.route("/")

@@ -133,7 +133,7 @@ def checkUpdate(platform):
 
 # 获取收藏
 def getFavorite(userid):
-    sql = "select * FROM  favorite where userid = \'{}\'".format(userid)
+    sql = "select * FROM  favorite where userid = \'{}\' order by date DESC".format(userid)
     cnn = mysql_use.connect_sql()
     res = mysql_use.search_info(cnn, sql)
     cnn.close()
@@ -142,9 +142,15 @@ def getFavorite(userid):
 
 # 添加收藏
 def addFavorite(userid, content, source):
+    # 查询是否已收藏
+    sql = "select * FROM  favorite where userid = \'{}\' and content =  \'{}\'".format(userid,content)
+    cnn = mysql_use.connect_sql()
+    res = mysql_use.search_info(cnn, sql)
+    if len(res) != 0:
+        return res
+
     sql = "INSERT INTO favorite(userid, content, source) VALUES (\'{}\',\'{}\',\'{}\')".format(userid, content, source)
     print('sql=' + sql)
-    cnn = mysql_use.connect_sql()
     res = mysql_use.insert_info(cnn, sql)
     cnn.close()
     return res

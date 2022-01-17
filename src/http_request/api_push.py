@@ -67,7 +67,7 @@ def push_all(alert='', title='nothing', ):
 
 # 获取推送消息
 def get_messages(alias=None):
-    sql = "select * FROM  message where alias like \'%{}%\' or type = 1 order by time DESC".format(alias)
+    sql = "select * FROM  message where alias like \'%{}%\' or type = 1 order by date DESC".format(alias)
     cnn = mysql_use.connect_sql()
     res = mysql_use.search_info(cnn, sql)
     cnn.close()
