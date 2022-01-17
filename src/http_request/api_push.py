@@ -40,11 +40,11 @@ def get_alias():
 def push_alias(alias, alert, title=None):
     if push.jpush is None:
         push.init()
-    push.alias(alias, alert=alert, title=title)
 
+    push.alias(alias, alert=alert, title=title)
     # 消息添加到数据库
     sql = 'INSERT INTO message(title, content, type, alias) VALUES (\'{}\',\'{}\',\'{}\',\'{}\')'.format(title, alert,
-                                                                                                         2, alias[0])
+                                                                                                         2, alias)
     print(alias[0])
     cnn = mysql_use.connect_sql()
     mysql_use.insert_info(cnn, sql)
@@ -67,7 +67,7 @@ def push_all(alert='', title='nothing', ):
 
 # 获取推送消息
 def get_messages(alias=None):
-    sql = "select * FROM  message where alias = \'{}\' or type = 1".format(alias)
+    sql = "select * FROM  message where alias like \'%{}%\' or type = 1 order by time DESC".format(alias)
     cnn = mysql_use.connect_sql()
     res = mysql_use.search_info(cnn, sql)
     cnn.close()

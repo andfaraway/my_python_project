@@ -1,9 +1,11 @@
 # coding=utf-8
+import datetime
 import socket
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, request
 from gevent import pywsgi
+from jpush import JPushFailure
 
 from src import config
 from . import api
@@ -80,16 +82,16 @@ def registerNotification():
 def getMessages():
     alias = request.args.get('alias')
     r_list = api_push.get_messages(alias)
+
+    # 将date转换成时间戳传给客户端
+    try:
+        for dic in r_list:
+            time: datetime.datetime = dic['time']
+            time_str = str(time.timestamp()).split('.')[0]
+        dic['time'] = time_str
+    except BaseException as exception:
+        print(exception)
     return http_result.dic_format(data=r_list)
-
-
-# 获取收藏
-@app.route("/getFavorite", methods=['post'])
-def getFavorite():
-    userid = request.args.get('userid')
-    if request_has_empty(userid):
-        return http_result.dic_format(ErrorCode.CODE_202)
-    return
 
 
 # 添加收藏
@@ -97,11 +99,41 @@ def getFavorite():
 def addFavorite():
     userid = request.args.get('userid')
     content = request.args.get('content')
-    _from = request.args.get('from')
+    source = request.args.get('from')
+    if request_has_empty(userid, content):
+        return http_result.dic_format(ErrorCode.CODE_202)
+
+    res = api.addFavorite(userid, content, source)
+    if res == 1:
+        return http_result.dic_format()
+    else:
+        return http_result.dic_format(ErrorCode.CODE_201)
+
+
+# 查询收藏
+@app.route("/getFavorite", methods=['post'])
+def getFavorite():
+    userid = request.args.get('userid')
     if request_has_empty(userid):
         return http_result.dic_format(ErrorCode.CODE_202)
-    result = api.addFavorite(**request.args)
-    return http_result.dic_format()
+    res = api.getFavorite(userid)
+    return http_result.dic_format(data=res)
+
+
+# 删除收藏
+@app.route("/deleteFavorite", methods=['post'])
+def deleteFavorite():
+    userid = request.args.get('userid')
+    favorite_id = request.args.get('favoriteId')
+    if request_has_empty(userid, favorite_id):
+        return http_result.dic_format(ErrorCode.CODE_202)
+    res = api.deleteFavorite(userid, favorite_id)
+    if res == 1:
+        return http_result.dic_format()
+    else:
+        return http_result.dic_format(ErrorCode.CODE_201)
+
+
 
 
 @app.route("/")
@@ -149,13 +181,38 @@ def getPictures():
 # 删除图片
 @app.route("/deletePicture", methods=['get', 'post'])
 def deletePicture():
-    if checkToken() is None: return http_result.dic_format(ErrorCode.CODE_300)
+    if checkToken() is None:
+        return http_result.dic_format(ErrorCode.CODE_300)
     picture_id = request.args.get('id')
     res = api.deletePictureWithId(picture_id)
     code = ErrorCode.CODE_200
     if res != 1:
         code = ErrorCode.CODE_201
     return http_result.dic_format(code)
+
+
+# 版本更新推送
+@app.route("/versionUpdate", methods=['post'])
+def versionUpdate():
+    platform = request.args.get('platform')
+    if http_result.request_has_empty(platform):
+        return http_result.dic_format(ErrorCode.CODE_202)
+    # 从数据库读取最新版本信息
+    version_data = api.checkUpdate(platform)[0]
+
+    alias = request.args.get('alias')
+    title = version_data.get('title')
+    alert = version_data.get('content')
+    if http_result.request_has_empty(alert):
+        return http_result.dic_format(ErrorCode.CODE_202)
+    try:
+        if alias is None:
+            api_push.push_all(alert=alert, title=title)
+        else:
+            api_push.push_alias(alias=alias, alert=alert, title=title)
+        return http_result.dic_format(data=version_data)
+    except JPushFailure as failure:
+        return http_result.dic_format(error_code=ErrorCode.CODE_201, msg=failure.error['message'])
 
 
 # 早晨推送
@@ -173,10 +230,11 @@ def say_morning(alias, alert):
 
 # 煮蛋提醒
 def steam_egg():
-    scheduler = BackgroundScheduler()
+    scheduler = BackgroundScheduler(timezone='Asia/Shanghai')
     # 在 2019-08-29 22:15:00至2019-08-29 22:17:00期间，每隔1分30秒 运行一次 job 方法
     # scheduler.add_job(api_push.push_alias, 'interval', days=1, start_date='2022-01-01 07:19:00',
     #                   end_date='2022-01-01 06:00:00', args=[['Ivy'], '记得蒸蛋哦🥚 ', 'Good Morning！'])
+
     scheduler.add_job(api_push.push_all, 'interval', days=1, start_date='2022-01-01 07:15:00',
                       end_date='2024-01-01 06:00:00', args=['记得蒸蛋哦🥚 ', 'Good Morning！'])
     scheduler.start()

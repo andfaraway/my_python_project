@@ -122,9 +122,9 @@ def deletePictureWithId(picture_id):
     return res
 
 
-# 检查更新
+# 检查更新 根据平台获取最新版本
 def checkUpdate(platform):
-    sql = "select * FROM  version_update where platform = \'{}\'".format(platform)
+    sql = "select * FROM  version_update where platform = \'{}\' order by version DESC".format(platform)
     cnn = mysql_use.connect_sql()
     res = mysql_use.search_info(cnn, sql)
     cnn.close()
@@ -140,10 +140,20 @@ def getFavorite(userid):
     return res
 
 
-# 获取收藏
-def addFavorite(**kwargs):
-    sql = "select * FROM  favorite where userid = \'{}\'".format(userid)
+# 添加收藏
+def addFavorite(userid, content, source):
+    sql = "INSERT INTO favorite(userid, content, source) VALUES (\'{}\',\'{}\',\'{}\')".format(userid, content, source)
+    print('sql=' + sql)
     cnn = mysql_use.connect_sql()
-    res = mysql_use.search_info(cnn, sql)
+    res = mysql_use.insert_info(cnn, sql)
+    cnn.close()
+    return res
+
+
+# 删除收藏
+def deleteFavorite(userid, favorite_id):
+    sql = 'DELETE FROM favorite WHERE userid = \'{}\' and id = \'{}\''.format(userid,favorite_id)
+    cnn = mysql_use.connect_sql()
+    res = mysql_use.delete_info(cnn, sql)
     cnn.close()
     return res
