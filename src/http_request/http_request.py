@@ -27,6 +27,7 @@ def checkToken():
         return result[0]['id']
 
 
+# 登录
 @app.route("/login", methods=['post'])
 def login():
     username = request.args.get('username')
@@ -80,6 +81,27 @@ def getMessages():
     alias = request.args.get('alias')
     r_list = api_push.get_messages(alias)
     return http_result.dic_format(data=r_list)
+
+
+# 获取收藏
+@app.route("/getFavorite", methods=['post'])
+def getFavorite():
+    userid = request.args.get('userid')
+    if request_has_empty(userid):
+        return http_result.dic_format(ErrorCode.CODE_202)
+    return
+
+
+# 添加收藏
+@app.route("/addFavorite", methods=['post'])
+def addFavorite():
+    userid = request.args.get('userid')
+    content = request.args.get('content')
+    _from = request.args.get('from')
+    if request_has_empty(userid):
+        return http_result.dic_format(ErrorCode.CODE_202)
+    result = api.addFavorite(**request.args)
+    return http_result.dic_format()
 
 
 @app.route("/")

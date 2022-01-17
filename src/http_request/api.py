@@ -129,3 +129,21 @@ def checkUpdate(platform):
     res = mysql_use.search_info(cnn, sql)
     cnn.close()
     return res
+
+
+# 获取收藏
+def getFavorite(userid):
+    sql = "select * FROM  favorite where userid = \'{}\'".format(userid)
+    cnn = mysql_use.connect_sql()
+    res = mysql_use.search_info(cnn, sql)
+    cnn.close()
+    return res
+
+
+# 获取收藏
+def addFavorite(**kwargs):
+    sql = "select * FROM  favorite where userid = \'{}\'".format(userid)
+    cnn = mysql_use.connect_sql()
+    res = mysql_use.search_info(cnn, sql)
+    cnn.close()
+    return res
