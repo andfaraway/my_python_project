@@ -143,7 +143,7 @@ def getFavorite(userid):
 # 添加收藏
 def addFavorite(userid, content, source):
     # 查询是否已收藏
-    sql = "select * FROM  favorite where userid = \'{}\' and content =  \'{}\'".format(userid,content)
+    sql = "select * FROM  favorite where userid = \'{}\' and content =  \'{}\'".format(userid, content)
     cnn = mysql_use.connect_sql()
     res = mysql_use.search_info(cnn, sql)
     if len(res) != 0:
@@ -158,8 +158,18 @@ def addFavorite(userid, content, source):
 
 # 删除收藏
 def deleteFavorite(userid, favorite_id):
-    sql = 'DELETE FROM favorite WHERE userid = \'{}\' and id = \'{}\''.format(userid,favorite_id)
+    sql = 'DELETE FROM favorite WHERE userid = \'{}\' and id = \'{}\''.format(userid, favorite_id)
     cnn = mysql_use.connect_sql()
     res = mysql_use.delete_info(cnn, sql)
+    cnn.close()
+    return res
+
+
+# 添加反馈
+def addFeedback(userid, content, nickname=None):
+    sql = "INSERT INTO feedback(userid, content, nickname) VALUES (\'{}\',\'{}\',\'{}\')".format(userid, content,
+                                                                                                 nickname)
+    cnn = mysql_use.connect_sql()
+    res = mysql_use.insert_info(cnn, sql)
     cnn.close()
     return res

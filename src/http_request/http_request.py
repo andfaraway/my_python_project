@@ -144,6 +144,22 @@ def deleteFavorite():
         return http_result.dic_format(ErrorCode.CODE_201)
 
 
+# 添加反馈
+@app.route("/addFeedback", methods=['post'])
+def addFeedback():
+    userid = request.args.get('userid')
+    content = request.args.get('content')
+    nickname = request.args.get('nickname')
+    if request_has_empty(userid, content):
+        return http_result.dic_format(ErrorCode.CODE_202)
+
+    res = api.addFeedback(userid, content, nickname)
+    if res == 1:
+        return http_result.dic_format()
+    else:
+        return http_result.dic_format(ErrorCode.CODE_201)
+
+
 @app.route("/")
 def main_func():
     return "Hello World!"
