@@ -260,7 +260,7 @@ def steam_egg():
     #                   end_date='2022-01-01 06:00:00', args=[['Ivy'], '记得蒸蛋哦🥚 ', 'Good Morning！'])
 
     scheduler.add_job(api_push.push_all, 'interval', days=1, start_date='2022-01-01 07:15:00',
-                      end_date='2024-01-01 06:00:00', args=['记得蒸蛋哦🥚 ', 'Good Morning！'])
+                      end_date='2024-01-01 06:00:00', args=['记得蒸蛋🥚 也要记得带哦😘', '早上好~'])
     scheduler.start()
 
 
