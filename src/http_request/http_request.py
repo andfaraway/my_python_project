@@ -273,7 +273,7 @@ def happy_morning():
     print(content)
     scheduler = BackgroundScheduler(timezone='Asia/Shanghai')
     scheduler.add_job(api_push.push_all, 'interval', days=1, start_date='2022-01-01 07:00:00',
-                      end_date='2024-01-01 06:00:00', args=[content, '❤️❤️早啊❤️❤️'])
+                      end_date='2024-01-01 06:00:00', args=[content, '❤️ 美好的一天，早啊☀️ ❤️'])
     scheduler.start()
 
 # 打招呼
