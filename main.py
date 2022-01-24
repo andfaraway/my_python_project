@@ -1,12 +1,13 @@
-import socket
-
 from src.http_request import http_request, api_push
+import src
 
 if __name__ == "__main__":
-    # api_push.push_alias(['biubiubiu'], 'Server Start！', '🎉🎉🎉')
-    # api_push.push_all('版本更新了！', '🎉🎉🎉')
-    http_request.steam_egg()
+    # 初始化配置文件
+    src.config.init()
+
+    http_request.happy_morning()
     http_request.start()
+
 
 
 

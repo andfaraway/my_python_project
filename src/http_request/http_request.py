@@ -2,10 +2,12 @@
 import datetime
 import socket
 
+import requests
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, request
 from gevent import pywsgi
 from jpush import JPushFailure
+from requests import Response
 
 from src import config
 from . import api
@@ -265,11 +267,14 @@ def steam_egg():
 
 
 def happy_morning():
+    content = get_tuwei()
+    if content is None:
+        return
+    print(content)
     scheduler = BackgroundScheduler(timezone='Asia/Shanghai')
-    scheduler.add_job(api_push.push_alias, 'date', run_date='2022-01-04 09:28:00',
-                      args=[['Ivy'], '爱你哟😘', '❤️❤️❤️'])
+    scheduler.add_job(api_push.push_all, 'interval', days=1, start_date='2022-01-01 07:00:00',
+                      end_date='2024-01-01 06:00:00', args=[content, '❤️❤️早啊❤️❤️'])
     scheduler.start()
-
 
 # 打招呼
 @app.route("/sayHello", methods=['get', 'post'])
@@ -302,6 +307,22 @@ def checkUpdate():
             break
     data['update'] = update
     return http_result.dic_format(data=[data])
+
+
+def get_tuwei():
+    tianApi = 'http://api.tianapi.com'
+    secretKey = "e1d306002add9c529feaa829d3969766"
+    url = '{}/saylove/index?key={}'.format(tianApi,secretKey)
+    req:Response = requests.get(url=url,)
+    req.encoding = 'utf-8'
+    if req.status_code == 200:
+        try:
+            str_to_dict = eval(req.content)
+            return str_to_dict['newslist'][0]['content']
+        except BaseException as error:
+            print(error)
+            return None
+    return None
 
 
 def start():

@@ -33,8 +33,9 @@ def init():
         value = dict(read_info[key])
         global info
         info[key] = value
+    ip = get_host_ip()
     global isDebug
-    if get_host_ip() == '1.14.252.115':
+    if ip == '1.14.252.115' or ip == '10.0.20.14':
         isDebug = False
     print('isDebug:{}'.format(isDebug))
 
