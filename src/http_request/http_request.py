@@ -274,7 +274,15 @@ def happy_morning():
     scheduler = BackgroundScheduler(timezone='Asia/Shanghai')
     scheduler.add_job(api_push.push_all, 'interval', days=1, start_date='2022-01-01 07:00:00',
                       end_date='2024-01-01 06:00:00', args=[content, '❤️ 美好的一天，早啊☀️ ❤️'])
+
+    scheduler.add_job(api_push.push_alias, 'interval', days=1, start_date='2022-01-01 07:10:00',
+                      end_date='2024-01-01 06:00:00', args=['Ivy', '按时吃药痘痘才能好起来哦❤️', '⏰吃药时间⏰️'])
+    scheduler.add_job(api_push.push_alias, 'interval', days=1, start_date='2022-01-01 12:30:00',
+                      end_date='2024-01-01 06:00:00', args=['Ivy', '吃完饭记得按时吃药🌹', '⏰吃药时间⏰️️'])
+    scheduler.add_job(api_push.push_alias, 'interval', days=1, start_date='2022-01-01 18:00:00',
+                      end_date='2024-01-01 06:00:00', args=['Ivy', '好了才能更漂亮噢😘', '⏰吃药时间⏰️️'])
     scheduler.start()
+
 
 # 打招呼
 @app.route("/sayHello", methods=['get', 'post'])
@@ -312,8 +320,8 @@ def checkUpdate():
 def get_tuwei():
     tianApi = 'http://api.tianapi.com'
     secretKey = "e1d306002add9c529feaa829d3969766"
-    url = '{}/saylove/index?key={}'.format(tianApi,secretKey)
-    req:Response = requests.get(url=url,)
+    url = '{}/saylove/index?key={}'.format(tianApi, secretKey)
+    req: Response = requests.get(url=url, )
     req.encoding = 'utf-8'
     if req.status_code == 200:
         try:

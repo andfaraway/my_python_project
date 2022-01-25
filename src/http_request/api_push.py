@@ -70,5 +70,17 @@ def get_messages(alias=None):
     sql = "select * FROM  message where alias like \'%{}%\' or type = 1 order by date DESC".format(alias)
     cnn = mysql_use.connect_sql()
     res = mysql_use.search_info(cnn, sql)
+
+    # 插入登录表
+    sql = 'INSERT INTO login(userid, alias) VALUES (\'{}\',\'{}\')'.format('0', alias, )
+    mysql_use.insert_info(cnn, sql)
     cnn.close()
     return res
+
+
+def insert_login_info(alias=None, userid=0):
+    # 插入登录表
+    cnn = mysql_use.connect_sql()
+    sql = 'INSERT INTO login(userid, alias) VALUES (\'{}\',\'{}\')'.format('0', alias, )
+    mysql_use.insert_info(cnn, sql)
+    cnn.close()
