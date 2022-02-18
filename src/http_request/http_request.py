@@ -254,34 +254,13 @@ def say_morning(alias, alert):
     scheduler.start()
 
 
-# 煮蛋提醒
-def steam_egg():
-    scheduler = BackgroundScheduler(timezone='Asia/Shanghai')
-    # 在 2019-08-29 22:15:00至2019-08-29 22:17:00期间，每隔1分30秒 运行一次 job 方法
-    # scheduler.add_job(api_push.push_alias, 'interval', days=1, start_date='2022-01-01 07:19:00',
-    #                   end_date='2022-01-01 06:00:00', args=[['Ivy'], '记得蒸蛋哦🥚 ', 'Good Morning！'])
-
-    scheduler.add_job(api_push.push_all, 'interval', days=1, start_date='2022-01-01 07:15:00',
-                      end_date='2024-01-01 06:00:00', args=['记得蒸蛋🥚 也要记得带哦😘', '早上好~'])
-    scheduler.start()
-
-
 def happy_morning():
     content = get_tuwei()
     if content is None:
         return
-    print(content)
     scheduler = BackgroundScheduler(timezone='Asia/Shanghai')
     scheduler.add_job(api_push.push_all, 'interval', days=1, start_date='2022-01-01 07:00:00',
-                      end_date='2024-01-01 06:00:00', args=[content, '❤️ 美好的一天，早啊☀️ ❤️'])
-
-    scheduler.add_job(api_push.push_alias, 'interval', days=1, start_date='2022-01-01 07:10:00',
-                      end_date='2024-01-01 06:00:00', args=['Ivy', '按时吃药痘痘才能好起来哦❤️', '⏰吃药时间⏰️'])
-    scheduler.add_job(api_push.push_alias, 'interval', days=1, start_date='2022-01-01 12:30:00',
-                      end_date='2024-01-01 06:00:00', args=['Ivy', '吃完饭记得按时吃药🌹', '⏰吃药时间⏰️️'])
-    scheduler.add_job(api_push.push_alias, 'interval', days=1, start_date='2022-01-01 18:00:00',
-                      end_date='2024-01-01 06:00:00', args=['Ivy', '好了才能更漂亮噢😘', '⏰吃药时间⏰️️'])
-    scheduler.start()
+                      end_date='2024-01-01 06:00:00', args=[content, '美好的一天，早啊'])
 
 
 # 打招呼
