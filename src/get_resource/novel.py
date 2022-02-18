@@ -16,7 +16,7 @@ def get_content(_target):
 # 诡秘之主 /15_15338/
 # 临渊行 /91_91546/
 if __name__ == '__main__':
-    server = 'https://www.biqufan.com'
+    server = 'https://www.biqupai.com'
     book_name = '临渊行.txt'
     target = server + '/91_91546/'
     req = requests.get(url=target)
