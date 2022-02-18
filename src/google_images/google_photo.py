@@ -178,7 +178,7 @@ if __name__ == '__main__':
     total_count = 200
     images = []
 
-    downloads_list = ['情侣头像']
+    downloads_list = ['日出']
 
     print('{}:{}'.format(current_time(), downloads_list))
     while len(downloads_list):
