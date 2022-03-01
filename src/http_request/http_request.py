@@ -32,7 +32,7 @@ def checkToken():
 
 
 # 登录
-@app.route("/login", methods=['post'])
+@app.route("/login", methods=['post', 'get'])
 def login():
     username = request.args.get('username')
     password = request.args.get('password')
@@ -313,6 +313,9 @@ def get_tuwei():
 
 
 def start():
+    api.getGodReceived()
+    return
+
     # 启动接口服务
     if config.isDebug:
         app.run('0.0.0.0', 5000)

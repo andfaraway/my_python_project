@@ -2,9 +2,9 @@ import configparser
 import os
 import socket
 
-# isDebug = True
+isDebug = True
 
-isDebug = False
+# isDebug = False
 
 info = {}
 

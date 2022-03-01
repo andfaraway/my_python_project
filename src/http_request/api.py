@@ -1,3 +1,7 @@
+import re
+
+import requests
+from bs4 import BeautifulSoup
 from pymysql import NULL
 
 from . import mysql_use
@@ -173,3 +177,64 @@ def addFeedback(userid, content, nickname=None):
     res = mysql_use.insert_info(cnn, sql)
     cnn.close()
     return res
+
+
+# 获取神回复
+def getGodReceived():
+    server = 'https://mp.weixin.qq.com/s/G1oZdViTfihQkkcntFXSWw'
+    target = server
+    req = requests.get(url=target)
+    req.encoding = 'utf-8'
+    html = req.text
+
+    chapter_bs = BeautifulSoup(html, 'lxml')
+    chapters = chapter_bs.find('div', id='js_content')
+
+    chapters = chapters.find_all('span')
+    count = len(chapters)
+
+    flag = '.'
+
+    result = []
+    question = ''
+    answer = ''
+
+    begin = 0
+    for index in range(count):
+        chapter = chapters[index]
+        text = chapter.string
+        # 去掉重复值
+        if flag != text:
+            flag = text
+
+            if text is not None:
+                s = re.findall(r'[0-9]{2}', text)
+                if len(s) == 1 and len(text) < 5:
+                    begin = index
+                    question = ''
+                    answer = ''
+                else:
+                    if index == begin + 1 and text != '':
+                        question = text
+                    elif index == begin + 2 and text != '':
+                        question = text
+                    elif '@' not in text:
+                        answer = answer + text + '\n'
+
+            if text is None:
+                text = ''
+            if '@' in text:
+                # 去除前后回车
+                answer = answer.lstrip()
+                answer = answer.rstrip()
+
+                sql = 'INSERT INTO funny(question, answer, author) VALUES (\'{}\',\'{}\',\'{}\')'.format(question,
+                                                                                                         answer, text)
+                cnn = mysql_use.connect_sql()
+                mysql_use.insert_info(cnn, sql)
+                cnn.close()
+
+                # print(dic)
+
+                # if s is not None:
+                #     print(text)
