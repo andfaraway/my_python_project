@@ -1,15 +1,11 @@
 import base64
 import json
-import sys
 import time
-from math import ceil
 
 import requests
-from apscheduler.schedulers.background import BackgroundScheduler
-from flask import Response, Flask
+from apscheduler.schedulers.blocking import BlockingScheduler
+from flask import Response
 from urllib import request
-
-app = Flask(__name__)
 
 
 def geturl():
@@ -84,8 +80,6 @@ def download():
 
 
 if __name__ == '__main__':
-    print(ceil(3 / 3))
-
     path = '/Users/libin/Desktop/deskTopImage/'
     name = 'image_name'
 
@@ -93,8 +87,7 @@ if __name__ == '__main__':
     start_time = time.time()
 
     # request.urlretrieve(url, path + name, Schedule)
-    scheduler = BackgroundScheduler(timezone='Asia/Shanghai')
-    scheduler.add_job(download, 'interval', days=1, start_date='2022-03-01 00:00:00',
+    scheduler = BlockingScheduler(timezone='Asia/Shanghai')
+    scheduler.add_job(download, 'interval', days=1, start_date='2022-03-01 09:32:00',
                       end_date='2024-01-01 00:00:00', args=[])
     scheduler.start()
-    app.run('0.0.0.0', 5000)

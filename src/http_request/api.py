@@ -179,8 +179,53 @@ def addFeedback(userid, content, nickname=None):
     return res
 
 
+
+
 # 获取神回复
-def getGodReceived():
+def getGodReceived(id=0):
+    sql = "select * FROM funny where id = \'{}\'".format(id)
+    cnn = mysql_use.connect_sql()
+    res = mysql_use.search_info(cnn, sql)
+    cnn.close()
+    return res
+
+
+# 插入登录表
+def insert_launch_info(**kwargs):
+    param = {'userid':kwargs.get('userid'),
+             'username': kwargs.get('username'),
+             'alias': kwargs.get('alias'),
+             'battery': kwargs.get('battery'),
+             'device_info': kwargs.get('device_info'),
+             'network': kwargs.get('network'),
+             }
+    sql = insertSqlStr('launch', param)
+    cnn = mysql_use.connect_sql()
+    res = mysql_use.insert_info(cnn, sql)
+    cnn.close()
+    return res
+
+
+def insertSqlStr(table, kwargs):
+    keys = list(kwargs.keys())
+    key_str = ''
+    value_str = ''
+    for index in range(len(keys)):
+        key = keys[index]
+        value = kwargs.get(key)
+        key_str = key_str + key
+        value_str = value_str + '\'{}\''.format(value)
+
+        if index < len(keys) - 1:
+            key_str += ','
+            value_str += ','
+
+    sql = 'INSERT INTO {}({}) VALUES ({})'.format(table, key_str, value_str)
+    return sql
+
+
+# 将文章中的数据爬取写入数据库
+def getGodReceivedFromWechat():
     server = 'https://mp.weixin.qq.com/s/G1oZdViTfihQkkcntFXSWw'
     target = server
     req = requests.get(url=target)

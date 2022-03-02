@@ -1,6 +1,7 @@
 # coding=utf-8
 import datetime
 import socket
+import time
 
 import requests
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -88,12 +89,19 @@ def getMessages():
     # 将date转换成时间戳传给客户端
     try:
         for dic in r_list:
-            time: datetime.datetime = dic['date']
-            time_str = str(time.timestamp()).split('.')[0]
+            time1: datetime.datetime = dic['date']
+            time_str = str(time1.timestamp()).split('.')[0]
             dic['date'] = time_str
     except BaseException as exception:
         print(exception)
     return http_result.dic_format(data=r_list)
+
+
+# 插入登录表
+@app.route("/insertLaunchInfo", methods=['post'])
+def insertLaunchInfo():
+    res = api.insert_launch_info(**request.args)
+    return http_result.dic_format()
 
 
 # 添加收藏
@@ -312,9 +320,42 @@ def get_tuwei():
     return None
 
 
+# 获取神回复
+@app.route("/getGodReceived", methods=['get'])
+def getGodReceived():
+    date2 = '2022/03/02:00:00:00'
+    # 获取自定义
+    d1 = datetime.datetime.now()
+    d2 = datetime.datetime.strptime(date2, '%Y/%m/%d:%H:%M:%S')
+    d = d1 - d2
+
+    id = 357 + d.days
+    res = api.getGodReceived(id)
+    dic = None
+    if len(res) > 0:
+        dic = res[0]
+    return http_result.dic_format(data=dic)
+
+# 发送神回复
+def sayGodReceived():
+    date2 = '2022/03/02:00:00:00'
+    # 获取自定义
+    d1 = datetime.datetime.now()
+    d2 = datetime.datetime.strptime(date2, '%Y/%m/%d:%H:%M:%S')
+    d = d1 - d2
+
+    id = 357 + d.days
+    res = api.getGodReceived(id)
+    dic = None
+    if len(res) > 0:
+        dic = res[0]
+    print(dic)
+    if dic is not None:
+        api_push.push_all(alert=dic['question'], save_title=dic['question'], save_content=dic['answer'])
+    return http_result.dic_format()
+
+
 def start():
-    api.getGodReceived()
-    return
 
     # 启动接口服务
     if config.isDebug:

@@ -52,14 +52,20 @@ def push_alias(alias, alert, title=None):
 
 
 # 推送全部
-def push_all(alert='', title='nothing', ):
+def push_all(alert='', title='nothing', save_title=None, save_content=None, push_type=1):
     if push.jpush is None:
         push.init()
     push.push_all(alert=alert, title=title)
 
+    # 保存的标题和内容
+    if save_title is None:
+        save_title = title
+    if save_content is None:
+        save_content = alert
+
     # 消息添加到数据库
-    sql = 'INSERT INTO message(title, content, type) VALUES (\'{}\',\'{}\',\'{}\')'.format(title, alert,
-                                                                                           1)
+    sql = 'INSERT INTO message(title, content, type) VALUES (\'{}\',\'{}\',\'{}\')'.format(save_title, save_content,
+                                                                                           push_type)
     cnn = mysql_use.connect_sql()
     mysql_use.insert_info(cnn, sql)
     cnn.close()
@@ -71,16 +77,4 @@ def get_messages(alias=None):
     cnn = mysql_use.connect_sql()
     res = mysql_use.search_info(cnn, sql)
 
-    # 插入登录表
-    sql = 'INSERT INTO login(userid, alias) VALUES (\'{}\',\'{}\')'.format('0', alias, )
-    mysql_use.insert_info(cnn, sql)
-    cnn.close()
     return res
-
-
-def insert_login_info(alias=None, userid=0):
-    # 插入登录表
-    cnn = mysql_use.connect_sql()
-    sql = 'INSERT INTO login(userid, alias) VALUES (\'{}\',\'{}\')'.format('0', alias, )
-    mysql_use.insert_info(cnn, sql)
-    cnn.close()
