@@ -4,8 +4,6 @@ import socket
 
 isDebug = True
 
-# isDebug = False
-
 info = {}
 
 
@@ -37,6 +35,8 @@ def init():
     global isDebug
     if ip == '1.14.252.115' or ip == '10.0.20.14':
         isDebug = False
+    else:
+        isDebug = True
     print('isDebug:{}'.format(isDebug))
 
 

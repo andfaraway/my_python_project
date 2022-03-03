@@ -97,6 +97,17 @@ def getMessages():
     return http_result.dic_format(data=r_list)
 
 
+# 删除指定消息
+@app.route("/deleteMessage", methods=['post'])
+def deleteMessage():
+    message_id = request.args.get('id')
+    res = api_push.delete_messages(message_id)
+    if res == 0:
+        return http_result.dic_format()
+    else:
+        return http_result.dic_format(ErrorCode.CODE_201)
+
+
 # 插入登录表
 @app.route("/insertLaunchInfo", methods=['post'])
 def insertLaunchInfo():
@@ -262,13 +273,18 @@ def say_morning(alias, alert):
     scheduler.start()
 
 
-def happy_morning():
-    content = get_tuwei()
-    if content is None:
-        return
+def good_morning():
     scheduler = BackgroundScheduler(timezone='Asia/Shanghai')
-    scheduler.add_job(api_push.push_all, 'interval', days=1, start_date='2022-01-01 07:00:00',
-                      end_date='2024-01-01 06:00:00', args=[content, '美好的一天，早啊'])
+    scheduler.add_job(say_tuwei, 'interval', days=1, start_date='2022-01-01 06:30:00',
+                      end_date='2024-01-01 06:00:00')
+    scheduler.start()
+
+
+def good_afternoon():
+    scheduler = BackgroundScheduler(timezone='Asia/Shanghai')
+    scheduler.add_job(sayGodReceived, 'interval', days=1, start_date='2022-01-01 12:00:00',
+                      end_date='2024-01-01 06:00:00')
+    scheduler.start()
 
 
 # 打招呼
@@ -304,7 +320,7 @@ def checkUpdate():
     return http_result.dic_format(data=[data])
 
 
-def get_tuwei():
+def say_tuwei():
     tianApi = 'http://api.tianapi.com'
     secretKey = "e1d306002add9c529feaa829d3969766"
     url = '{}/saylove/index?key={}'.format(tianApi, secretKey)
@@ -313,7 +329,8 @@ def get_tuwei():
     if req.status_code == 200:
         try:
             str_to_dict = eval(req.content)
-            return str_to_dict['newslist'][0]['content']
+            content = str_to_dict['newslist'][0]['content']
+            api_push.push_all(content, '早安❤')
         except BaseException as error:
             print(error)
             return None
@@ -336,6 +353,7 @@ def getGodReceived():
         dic = res[0]
     return http_result.dic_format(data=dic)
 
+
 # 发送神回复
 def sayGodReceived():
     date2 = '2022/03/02:00:00:00'
@@ -356,7 +374,6 @@ def sayGodReceived():
 
 
 def start():
-
     # 启动接口服务
     if config.isDebug:
         app.run('0.0.0.0', 5000)

@@ -73,8 +73,16 @@ def push_all(alert='', title='nothing', save_title=None, save_content=None, push
 
 # 获取推送消息
 def get_messages(alias=None):
-    sql = "select * FROM  message where alias like \'%{}%\' or type = 1 order by date DESC".format(alias)
+    sql = "select * FROM  message where alias like \'%{}%\' or type = 1 and hide = 0 order by date DESC".format(
+        alias)
     cnn = mysql_use.connect_sql()
     res = mysql_use.search_info(cnn, sql)
+    return res
 
+
+# 删除消息
+def delete_messages(id):
+    sql = mysql_use.updateSqlStr('message', {'hide': '1'}, {'id': id})
+    cnn = mysql_use.connect_sql()
+    res = mysql_use.update_info(cnn, sql)
     return res
