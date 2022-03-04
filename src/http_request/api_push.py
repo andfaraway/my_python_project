@@ -45,7 +45,7 @@ def push_alias(alias, alert, title=None):
     # 消息添加到数据库
     sql = 'INSERT INTO message(title, content, type, alias) VALUES (\'{}\',\'{}\',\'{}\',\'{}\')'.format(title, alert,
                                                                                                          2, alias)
-    print(alias[0])
+    print(alias)
     cnn = mysql_use.connect_sql()
     mysql_use.insert_info(cnn, sql)
     cnn.close()

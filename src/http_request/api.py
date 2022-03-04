@@ -205,7 +205,18 @@ def insert_launch_info(**kwargs):
     return res
 
 
-
+# 插入推送token
+def pushDeviceToken(**kwargs):
+    param = {'userid': kwargs.get('userid'),
+             'deviceToken': kwargs.get('deviceToken'),
+             'debug': kwargs.get('debug')
+             }
+    sql = mysql_use.insertSqlStr('push_token', param)
+    print(sql)
+    cnn = mysql_use.connect_sql()
+    res = mysql_use.insert_info(cnn, sql)
+    cnn.close()
+    return res
 
 
 # 将文章中的数据爬取写入数据库

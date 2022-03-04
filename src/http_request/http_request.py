@@ -115,6 +115,13 @@ def insertLaunchInfo():
     return http_result.dic_format()
 
 
+# 插入推送token
+@app.route("/pushDeviceToken", methods=['post'])
+def pushDeviceToken():
+    res = api.pushDeviceToken(**request.args)
+    return http_result.dic_format()
+
+
 # 添加收藏
 @app.route("/addFavorite", methods=['post'])
 def addFavorite():
@@ -143,8 +150,8 @@ def getFavorite():
     # 将date转换成时间戳传给客户端
     try:
         for dic in r_list:
-            time: datetime.datetime = dic['date']
-            time_str = str(time.timestamp()).split('.')[0]
+            time1: datetime.datetime = dic['date']
+            time_str = str(time1.timestamp()).split('.')[0]
             dic['date'] = time_str
     except BaseException as exception:
         print(exception)
