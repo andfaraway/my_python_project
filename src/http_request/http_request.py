@@ -387,10 +387,7 @@ def getDesktopImage():
     if image_id is None:
         image_id = time.strftime("%Y%m%d", time.localtime())
     res = api.getDesktopImage(image_id)
-    dic = None
-    if len(res) > 0:
-        dic = res[0]
-    return http_result.dic_format(data=dic)
+    return http_result.dic_format(data=res)
 
 
 def start():
