@@ -1,11 +1,19 @@
 import base64
 import json
+import sys
 import time
 
 import requests
-from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Response
 from urllib import request
+
+import ssl
+
+print(sys.path[0])
+from src.http_request import api
+
+ssl._create_default_https_context = ssl._create_unverified_context
 
 
 def geturl():
@@ -48,6 +56,7 @@ def callbackfunc(blocknum, blocksize, totalsize):
 
 
 def download_callback(blocknum, blocksize, totalsize):
+    global start_time
     speed = (blocknum * blocksize) / (time.time() - start_time)
     speed_str = " Speed: %s/s" % format_size(speed)
     percent = blocknum * blocksize / totalsize
@@ -55,7 +64,11 @@ def download_callback(blocknum, blocksize, totalsize):
     percent_str = "%.2f%%" % (percent * 100)
     if percent >= 1:
         percent_str = "100%, size:{}".format(format_size(totalsize))
-    print('\r[{}]downloading:{},{},'.format(name, percent_str, speed_str), end='', )
+
+    print('\rdownloading:{},{},'.format(percent_str, speed_str), end='', )
+
+
+global start_time
 
 
 def download():
@@ -71,23 +84,22 @@ def download():
     elif 'gif' in image_lower:
         suffix = 'gif'
 
-    global name
-    name = time.strftime("%Y%m%d.{}".format(suffix), time.localtime())
+    image_id = time.strftime("%Y%m%d", time.localtime())
+    name = '{}.{}'.format(image_id, suffix)
+
     global start_time
     start_time = time.time()
+    request.urlretrieve(url, '/data/www/default/src/deskTopImage/' + name, download_callback)
 
-    request.urlretrieve(url, path + name, download_callback)
+    # 上传数据库
+    api.addDesktopImage(image_id, name, 'http://1.14.252.115' + '/src/deskTopImage/' + name)
 
 
-if __name__ == '__main__':
-    path = '/Users/libin/Desktop/deskTopImage/'
-    name = 'image_name'
-
-    # 定时下载
-    start_time = time.time()
-
-    # request.urlretrieve(url, path + name, Schedule)
-    scheduler = BlockingScheduler(timezone='Asia/Shanghai')
-    scheduler.add_job(download, 'interval', days=1, start_date='2022-03-01 09:32:00',
+def start():
+    scheduler = BackgroundScheduler(timezone='Asia/Shanghai')
+    scheduler.add_job(download, 'interval', days=1, start_date='2022-03-01 00:00:05',
                       end_date='2024-01-01 00:00:00', args=[])
     scheduler.start()
+
+# if __name__ == '__main__':
+#     download()

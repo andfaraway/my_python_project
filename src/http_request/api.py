@@ -179,6 +179,29 @@ def addFeedback(userid, content, nickname=None):
     return res
 
 
+# 添加桌面图片
+def addDesktopImage(image_id, name, url):
+    param = {'id': image_id,
+             'name': name,
+             'url': url
+             }
+    sql = mysql_use.insertSqlStr('desktop_image', param)
+    print('sql = {}'.format(sql))
+    cnn = mysql_use.connect_sql()
+    res = mysql_use.insert_info(cnn, sql)
+    cnn.close()
+    return res
+
+
+# 获取收藏
+def getDesktopImage(image_id):
+    sql = "select * FROM  desktop_image where id = \'{}\'".format(image_id)
+    cnn = mysql_use.connect_sql()
+    res = mysql_use.search_info(cnn, sql)
+    cnn.close()
+    return res
+
+
 # 获取神回复
 def getGodReceived(id=0):
     sql = "select * FROM funny where id = \'{}\'".format(id)

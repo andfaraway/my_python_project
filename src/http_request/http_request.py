@@ -380,6 +380,19 @@ def sayGodReceived():
     return http_result.dic_format()
 
 
+# 获取当天桌面图片
+@app.route("/getDesktopImage", methods=['get'])
+def getDesktopImage():
+    image_id = request.args.get('id')
+    if image_id is None:
+        image_id = time.strftime("%Y%m%d", time.localtime())
+    res = api.getDesktopImage(image_id)
+    dic = None
+    if len(res) > 0:
+        dic = res[0]
+    return http_result.dic_format(data=dic)
+
+
 def start():
     # 启动接口服务
     if config.isDebug:
