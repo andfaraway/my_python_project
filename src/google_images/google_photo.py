@@ -97,6 +97,7 @@ def get_image_url():
     time.sleep(3)
     # 获取根视图
     islrc_box = driver.find_element(by=By.CLASS_NAME, value='islrc')
+    print('islrc = {}'.format(islrc_box))
     div_boxs = islrc_box.find_elements(by=By.XPATH, value='./*')
     normal_class = div_boxs[0].get_attribute('class')
     count = len(div_boxs)
@@ -114,7 +115,8 @@ def get_image_url():
             print('非正常div，跳过: %s', div_box.get_attribute('class'))
             continue
         print('%s%s(%d/%d)开始下载' % (current_time(), key_word, index, count))
-
+        print(div_box.find_elements())
+        return
         img = div_box.find_element(by=By.TAG_NAME, value='img')
         try:
             img.click()
@@ -178,7 +180,7 @@ if __name__ == '__main__':
     total_count = 200
     images = []
 
-    downloads_list = ['日出']
+    downloads_list = ['鹿晗手机壁纸']
 
     print('{}:{}'.format(current_time(), downloads_list))
     while len(downloads_list):

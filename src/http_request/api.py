@@ -180,9 +180,10 @@ def addFeedback(userid, content, nickname=None):
 
 
 # 添加桌面图片
-def addDesktopImage(image_id, name, url):
+def addDesktopImage(image_id, name, image_format, url):
     param = {'id': image_id,
              'name': name,
+             'format': image_format,
              'url': url
              }
     sql = mysql_use.insertSqlStr('desktop_image', param)
@@ -193,7 +194,7 @@ def addDesktopImage(image_id, name, url):
     return res
 
 
-# 获取收藏
+# 获取桌面图片
 def getDesktopImage(image_id):
     sql = "select * FROM  desktop_image where id = \'{}\'".format(image_id)
     cnn = mysql_use.connect_sql()

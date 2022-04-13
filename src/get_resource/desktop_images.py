@@ -92,7 +92,7 @@ def download():
     request.urlretrieve(url, '/data/www/default/src/deskTopImage/' + name, download_callback)
 
     # 上传数据库
-    api.addDesktopImage(image_id, name, 'http://1.14.252.115' + '/src/deskTopImage/' + name)
+    api.addDesktopImage(image_id, name, '.{}'.format(suffix), 'http://1.14.252.115' + '/src/deskTopImage/' + name)
 
 
 def start():
