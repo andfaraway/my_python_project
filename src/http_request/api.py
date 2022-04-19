@@ -243,6 +243,17 @@ def pushDeviceToken(**kwargs):
     return res
 
 
+# 获取登录信息
+def getLaunchInfo(userid):
+    sql = "select * FROM launch where userid = \'{}\' order by date DESC".format(userid)
+    if userid is None:
+        sql = "select * FROM launch"
+    cnn = mysql_use.connect_sql()
+    res = mysql_use.search_info(cnn, sql)
+    cnn.close()
+    return res
+
+
 # 将文章中的数据爬取写入数据库
 def getGodReceivedFromWechat():
     server = 'https://mp.weixin.qq.com/s/G1oZdViTfihQkkcntFXSWw'

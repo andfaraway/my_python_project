@@ -385,9 +385,22 @@ def sayGodReceived():
 def getDesktopImage():
     image_id = request.args.get('id')
     if image_id is None:
-        image_id = time.strftime("%Y%m%d", time.localtime())
+        # 获取前一天图片
+        time_now = datetime.datetime.now()
+        image_id = (time_now + datetime.timedelta(days=-1)).strftime("%Y%m%d")
+        print(image_id)
+
     res = api.getDesktopImage(image_id)
     return http_result.dic_format(data=res)
+
+
+# 获取神回复
+@app.route("/getLaunchInfo", methods=['get'])
+def getLaunchInfo():
+    userid = request.args.get('userid')
+    res = api.getLaunchInfo(userid)
+    dic = res
+    return http_result.dic_format(data=dic)
 
 
 def start():
