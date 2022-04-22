@@ -8,3 +8,6 @@ requests~=2.26.0
 selenium~=4.1.0
 jpush~=3.3.9
 APScheduler~=3.8.1
+ajax~=3.0.0
+Django~=4.0.3
+lunar_python~=1.2.18

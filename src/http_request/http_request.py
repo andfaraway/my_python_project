@@ -394,12 +394,23 @@ def getDesktopImage():
     return http_result.dic_format(data=res)
 
 
-# 获取神回复
+# 获取用户信息
+@app.route("/getUserInfo", methods=['get'])
+def getUserInfo():
+    userid = request.args.get('userid')
+    res = api.getUserInfo(userid)
+    dic = res
+    return http_result.dic_format(data=dic)
+
+
+# 获取启动页信息
 @app.route("/getLaunchInfo", methods=['get'])
 def getLaunchInfo():
-    userid = request.args.get('userid')
-    res = api.getLaunchInfo(userid)
-    dic = res
+    date_str = request.args.get('date')
+    date = None
+    if date_str is not None:
+        date = datetime.datetime.strptime(date_str, '%Y%m%d')
+    dic = api.getLaunchInfo(date)
     return http_result.dic_format(data=dic)
 
 

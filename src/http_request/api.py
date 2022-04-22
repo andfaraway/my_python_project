@@ -1,7 +1,6 @@
-import re
+import datetime
 
-import requests
-from bs4 import BeautifulSoup
+from lunar_python import Lunar, Solar
 from pymysql import NULL
 
 from . import mysql_use
@@ -244,7 +243,7 @@ def pushDeviceToken(**kwargs):
 
 
 # 获取登录信息
-def getLaunchInfo(userid):
+def getUserInfo(userid):
     sql = "select * FROM launch where userid = \'{}\' order by date DESC".format(userid)
     if userid is None:
         sql = "select * FROM launch"
@@ -254,62 +253,62 @@ def getLaunchInfo(userid):
     return res
 
 
-# 将文章中的数据爬取写入数据库
-def getGodReceivedFromWechat():
-    server = 'https://mp.weixin.qq.com/s/G1oZdViTfihQkkcntFXSWw'
-    target = server
-    req = requests.get(url=target)
-    req.encoding = 'utf-8'
-    html = req.text
+# 获取英文月份
+def getEnMonth(month):
+    switch = {1: 'January',
+              2: 'February',
+              3: 'March',
+              4: 'April',
+              5: 'May',
+              6: 'June',
+              7: 'July',
+              8: 'August',
+              9: 'September',
+              10: 'October',
+              11: 'November',
+              12: 'December',
+              }
+    return switch[month]
 
-    chapter_bs = BeautifulSoup(html, 'lxml')
-    chapters = chapter_bs.find('div', id='js_content')
 
-    chapters = chapters.find_all('span')
-    count = len(chapters)
+# 获取启动页信息
+def getLaunchInfo(date):
+    if date is None:
+        date = datetime.datetime.now()
 
-    flag = '.'
+    # 农历
+    lunar = Lunar.fromDate(date)
+    # 阳历
+    solar = Solar.fromDate(date)
 
-    result = []
-    question = ''
-    answer = ''
+    # 获取节日
+    festival = ''
+    if len(solar.getFestivals()) > 0:
+        festival = solar.getFestivals()[0]
+    elif len(lunar.getFestivals()) > 0:
+        festival = lunar.getFestivals()[0]
+    else:
+        festival = lunar.getJieQi()
 
-    begin = 0
-    for index in range(count):
-        chapter = chapters[index]
-        text = chapter.string
-        # 去掉重复值
-        if flag != text:
-            flag = text
+    # 内容
+    sql = "select * from ones order by id DESC limit 1"
+    print('sql=' + sql)
+    cnn = mysql_use.connect_sql()
+    res = mysql_use.search_info(cnn, sql)
+    cnn.close()
+    map = res[0]
+    contentStr = map['content']
+    image = map['image']
+    authorStr = map['number']
 
-            if text is not None:
-                s = re.findall(r'[0-9]{2}', text)
-                if len(s) == 1 and len(text) < 5:
-                    begin = index
-                    question = ''
-                    answer = ''
-                else:
-                    if index == begin + 1 and text != '':
-                        question = text
-                    elif index == begin + 2 and text != '':
-                        question = text
-                    elif '@' not in text:
-                        answer = answer + text + '\n'
-
-            if text is None:
-                text = ''
-            if '@' in text:
-                # 去除前后回车
-                answer = answer.lstrip()
-                answer = answer.rstrip()
-
-                sql = 'INSERT INTO funny(question, answer, author) VALUES (\'{}\',\'{}\',\'{}\')'.format(question,
-                                                                                                         answer, text)
-                cnn = mysql_use.connect_sql()
-                mysql_use.insert_info(cnn, sql)
-                cnn.close()
-
-                # print(dic)
-
-                # if s is not None:
-                #     print(text)
+    # 获取内容
+    res = {'title': festival,
+           'dayStr': '{}'.format(solar.getDay()),
+           'monthStr': getEnMonth(solar.getMonth()),
+           'dateDetailStr': '星期{} 农历{}月{} 晴'.format(solar.getWeekInChinese(), lunar.getMonthInChinese(),
+                                                    lunar.getDayInChinese()),
+           'contentStr': contentStr,
+           'authorStr': '———《{}》'.format(authorStr),
+           'codeStr': 'i love u',
+           'image': image}
+    return res
