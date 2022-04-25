@@ -2,7 +2,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-from http_request import mysql_use
+from src.http_request import mysql_use
 
 
 def getOnesContent():

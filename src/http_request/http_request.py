@@ -1,5 +1,6 @@
 # coding=utf-8
 import datetime
+import os
 import socket
 import time
 
@@ -8,6 +9,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, request
 from gevent import pywsgi
 from jpush import JPushFailure
+from lunar_python import Lunar, Solar
+from lunar_python.util import HolidayUtil
 from requests import Response
 
 from src import config
@@ -16,6 +19,11 @@ from . import api_push
 from . import http_result
 from .error_code import *
 from .http_result import request_has_empty
+
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
 
 app = Flask(__name__)
 
@@ -394,6 +402,22 @@ def getDesktopImage():
     return http_result.dic_format(data=res)
 
 
+# 上传图片
+@app.route('/uploadFile', methods=['POST'])
+def uploadFile():
+    if request.method == 'POST':
+        file = request.files['file']
+        file_type = request.form['type']
+
+        # 保存路径
+        local_path = '/data/www/default'
+        if config.isDebug:
+            local_path = '/Users/libin/Desktop'
+        file.save('{}/{}/{}'.format(local_path, file_type, file.filename))
+        print('上传图片：{}/{}'.format(file_type,file.filename))
+        return http_result.dic_format()
+
+
 # 获取用户信息
 @app.route("/getUserInfo", methods=['get'])
 def getUserInfo():
@@ -403,15 +427,101 @@ def getUserInfo():
     return http_result.dic_format(data=dic)
 
 
+# 获取获取设置模块
+@app.route("/getSettingModule", methods=['get'])
+def getSettingModule():
+    account_type = request.args.get('accountType')
+    res = api.getSettingModule(account_type)
+    dic = res
+    return http_result.dic_format(data=dic)
+
+
 # 获取启动页信息
 @app.route("/getLaunchInfo", methods=['get'])
 def getLaunchInfo():
     date_str = request.args.get('date')
+
     date = None
     if date_str is not None:
         date = datetime.datetime.strptime(date_str, '%Y%m%d')
     dic = api.getLaunchInfo(date)
     return http_result.dic_format(data=dic)
+
+
+# 获取摸鱼信息
+@app.route("/getMoyuInfo", methods=['get'])
+def getMoyuInfo():
+    # 创建一个参数对象，用来控制chrome是否以无界面模式打开
+    ch_op = Options()
+    # 设置谷歌浏览器的页面无可视化，如果需要可视化请注释这两行代码
+    ch_op.add_argument('--headless')
+    ch_op.add_argument('--disable-gpu')
+    driver_path = os.getcwd() + '/chromedriver'
+    driver = webdriver.Chrome(service=Service(driver_path), options=ch_op)
+    driver.get('https://momoyu.cc/')
+    islrc_box = driver.find_element(by=By.CLASS_NAME, value='tips')
+
+    content = islrc_box.text.replace('\n', '\t')
+    api.insertMoyu(content)
+    return http_result.dic_format(data=content)
+
+
+# 获取每日温馨提示
+@app.route("/getTips", methods=['get'])
+def getTips():
+    now = datetime.datetime.now();
+    now_hour = now.strftime("%H")
+    hour = int(now_hour)
+    # 当前时间
+    time_str = ''
+    if hour < 6:
+        time_str = '凌晨'
+    elif hour < 9:
+        time_str = '早上'
+    elif hour < 12:
+        time_str = '上午'
+    elif hour < 14:
+        time_str = '中午'
+    elif hour < 17:
+        time_str = '下午'
+    elif hour < 19:
+        time_str = '傍晚'
+    else:
+        time_str = '晚上'
+
+    # 农历
+    lunar = Lunar.fromDate(now)
+    # 阳历
+    solar = Solar.fromDate(now)
+
+    # 获取指定年份的假期列表
+    holidays = HolidayUtil.getHolidays(2022)
+
+    now_str = now.strftime('%Y%M%d')
+
+    first_holiday_str = None
+    second_holiday_str = None
+    # 记录第一个节假日
+    temp_name = None
+    for h in holidays:
+        # 如果不需要补班
+        if h.isWork() is False:
+            h_date = datetime.datetime.strptime(h.getDay(), '%Y-%m-%d')
+            d = (h_date - now).days
+            if d > 0:
+                if first_holiday_str is None:
+                    first_holiday_str = '距离{}还有{}天'.format(h.getName(), d)
+                    temp_name = h.getName()
+                elif temp_name != h.getName() and temp_name is not None:
+                    second_holiday_str = '距离{}还有{}天'.format(h.getName(), d)
+                    break
+    hi = ''
+    # print(solar.ge)
+    data = '📣 摸鱼提醒：\n{}好，今天是{}月{}日星期{}\n农历{}月{}\n{}\n{}'.format(time_str, solar.getMonth(), solar.getDay(),
+                                                                 solar.getWeekInChinese(),
+                                                                 lunar.getMonthInChinese(), lunar.getDayInChinese(),
+                                                                 first_holiday_str, second_holiday_str)
+    return http_result.dic_format(data=data)
 
 
 def start():

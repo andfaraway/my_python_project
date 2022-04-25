@@ -1,5 +1,5 @@
-from . import desktop_images
-from . import get_source_to_sql
+from src.get_resource import desktop_images
+from src.get_resource import get_source_to_sql
 
 
 def start():

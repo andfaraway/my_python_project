@@ -164,7 +164,6 @@ def scroll_to_bottom():
 
 
 if __name__ == '__main__':
-
     # 存储路径
     download_root_path = '/Users/libin/Desktop/downloads/'
     download_path = download_root_path

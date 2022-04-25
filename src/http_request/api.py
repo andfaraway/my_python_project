@@ -253,6 +253,15 @@ def getUserInfo(userid):
     return res
 
 
+# 获取获取设置模块
+def getSettingModule(account_type):
+    sql = "select * FROM config where account_type = \'{}\' or account_type = '0'".format(account_type)
+    cnn = mysql_use.connect_sql()
+    res = mysql_use.search_info(cnn, sql)
+    cnn.close()
+    return res
+
+
 # 获取英文月份
 def getEnMonth(month):
     switch = {1: 'January',
@@ -296,10 +305,10 @@ def getLaunchInfo(date):
     cnn = mysql_use.connect_sql()
     res = mysql_use.search_info(cnn, sql)
     cnn.close()
-    map = res[0]
-    contentStr = map['content']
-    image = map['image']
-    authorStr = map['number']
+    dic = res[0]
+    contentStr = dic['content']
+    image = dic['image']
+    authorStr = dic['number']
 
     # 获取内容
     res = {'title': festival,
@@ -311,4 +320,14 @@ def getLaunchInfo(date):
            'authorStr': '———《{}》'.format(authorStr),
            'codeStr': 'i love u',
            'image': image}
+    return res
+
+
+# 插入摸鱼信息
+def insertMoyu(content):
+    param = {'content': content}
+    sql = mysql_use.insertSqlStr('moyu', param)
+    cnn = mysql_use.connect_sql()
+    res = mysql_use.insert_info(cnn, sql)
+    cnn.close()
     return res
