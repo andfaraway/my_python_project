@@ -300,16 +300,20 @@ def getLaunchInfo(date):
         festival = lunar.getJieQi()
 
     # 内容
-    sql = "select * from ones order by id DESC limit 1"
+    sql = "select * from launch_info order by id DESC limit 1"
     print('sql=' + sql)
     cnn = mysql_use.connect_sql()
     res = mysql_use.search_info(cnn, sql)
     cnn.close()
     dic = res[0]
+
+    if dic['festival'] is not None:
+        festival = dic['festival']
     contentStr = dic['content']
     image = dic['image']
-    authorStr = dic['number']
-
+    authorStr = dic['author']
+    qr_code = dic['qr_code']
+    backgroundImage = dic['image_background']
     # 获取内容
     res = {'title': festival,
            'dayStr': '{}'.format(solar.getDay()),
@@ -317,9 +321,11 @@ def getLaunchInfo(date):
            'dateDetailStr': '星期{} 农历{}月{} 晴'.format(solar.getWeekInChinese(), lunar.getMonthInChinese(),
                                                     lunar.getDayInChinese()),
            'contentStr': contentStr,
-           'authorStr': '———《{}》'.format(authorStr),
-           'codeStr': 'i love u',
-           'image': image}
+           'authorStr': authorStr,
+           'codeStr': qr_code,
+           'image': image,
+           'backgroundImage':backgroundImage}
+    print(res)
     return res
 
 

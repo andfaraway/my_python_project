@@ -1,8 +1,6 @@
 # coding=utf-8
 import datetime
 import os
-import socket
-import time
 
 import requests
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -414,7 +412,7 @@ def uploadFile():
         if config.isDebug:
             local_path = '/Users/libin/Desktop'
         file.save('{}/{}/{}'.format(local_path, file_type, file.filename))
-        print('上传图片：{}/{}'.format(file_type,file.filename))
+        print('上传图片：{}/{}'.format(file_type, file.filename))
         return http_result.dic_format()
 
 
@@ -469,7 +467,9 @@ def getMoyuInfo():
 # 获取每日温馨提示
 @app.route("/getTips", methods=['get'])
 def getTips():
-    now = datetime.datetime.now();
+    now = datetime.datetime.now()
+    now = datetime.datetime.strptime('2022/04/29 17:18:00', '%Y/%m/%d %H:%M:%S')
+
     now_hour = now.strftime("%H")
     hour = int(now_hour)
     # 当前时间
@@ -494,33 +494,82 @@ def getTips():
     # 阳历
     solar = Solar.fromDate(now)
 
-    # 获取指定年份的假期列表
-    holidays = HolidayUtil.getHolidays(2022)
+    # 当天的假期信息
+    today_holiday = HolidayUtil.getHoliday(now.year, now.month, now.day)
 
-    now_str = now.strftime('%Y%M%d')
+    # 标题
+    tips_name = '📣 摸鱼提醒：'
 
-    first_holiday_str = None
-    second_holiday_str = None
-    # 记录第一个节假日
-    temp_name = None
+    # 祝福语
+    wish_str = None
+    if today_holiday is None:
+        # 非节假日
+        if solar.getWeek() == 0 or solar.getWeek() == 6:
+            wish_str = '周末快乐~'
+        else:
+            wish_str = '加油吧 打工人 💪'
+    else:
+        # 节假日
+        # 补班
+        if today_holiday.isWork():
+            wish_str = '{}补班 😑'.format(today_holiday.getName())
+        else:
+            # 放假
+            tips_name = '📣 假日提醒：'
+            wish_str = '{}快乐🎉🎉🎉'.format(today_holiday.getName())
+
+    # 获取今年的假期列表
+    holidays = HolidayUtil.getHolidays(now.year)
+
+    # 距离最近的节假日
+    first_dic = None
+    # 距离第二近的节假日
+    second_dic = None
+
+    temp_map = {}
+    temp_list = []
     for h in holidays:
-        # 如果不需要补班
-        if h.isWork() is False:
-            h_date = datetime.datetime.strptime(h.getDay(), '%Y-%m-%d')
-            d = (h_date - now).days
-            if d > 0:
-                if first_holiday_str is None:
-                    first_holiday_str = '距离{}还有{}天'.format(h.getName(), d)
+        if h.getName() not in temp_map.keys() and not h.isWork():
+            temp_map[h.getName()] = h
+            temp_list.append(h)
+    temp_name = None
+    for h in temp_list:
+        if not h.isWork():
+            d = (datetime.datetime.strptime('{} 00:00:00'.format(h.getDay()), '%Y-%m-%d %H:%M:%S') - now)
+            if d.days > 0 or (d.days == 0 and d.seconds > 0 and today_holiday is None):
+                if first_dic is None:
+                    first_dic = {
+                        'name': h.getName(),
+                        'days': d.days,
+                        'seconds': d.seconds
+                    }
                     temp_name = h.getName()
-                elif temp_name != h.getName() and temp_name is not None:
-                    second_holiday_str = '距离{}还有{}天'.format(h.getName(), d)
+                elif temp_name is not None and temp_name != h.getName():
+                    second_dic = {
+                        'name': h.getName(),
+                        'days': d.days,
+                        'seconds': d.seconds
+                    }
                     break
-    hi = ''
-    # print(solar.ge)
-    data = '📣 摸鱼提醒：\n{}好，今天是{}月{}日星期{}\n农历{}月{}\n{}\n{}'.format(time_str, solar.getMonth(), solar.getDay(),
-                                                                 solar.getWeekInChinese(),
-                                                                 lunar.getMonthInChinese(), lunar.getDayInChinese(),
-                                                                 first_holiday_str, second_holiday_str)
+    # 距离周末时间
+    week_distance = None
+    if solar.getWeek() != 0 and solar.getWeek() != 6:
+        week_distance = 6 - solar.getWeek()
+    # 当天日期
+    date_str = '{}好\n今天是{}月{}日 星期{}\n农历{}月{}'.format(time_str, solar.getMonth(), solar.getDay(),
+                                                     solar.getWeekInChinese(),
+                                                     lunar.getMonthInChinese(),
+                                                     lunar.getDayInChinese(),
+                                                     )
+
+    data = {
+        'tips_name': tips_name,
+        'date_str': date_str,
+        'wish_str': wish_str,
+        'week_distance': week_distance,
+        'first_dic': first_dic,
+        'second_dic': second_dic,
+    }
     return http_result.dic_format(data=data)
 
 

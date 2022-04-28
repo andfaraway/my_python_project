@@ -13,6 +13,8 @@ if __name__ == "__main__":
     # 下午
     http_request.good_afternoon()
 
+    http_request.getTips()
+
     # 每天定时下载资源
     # scheduler = BackgroundScheduler(timezone='Asia/Shanghai')
     # scheduler.add_job(everyday_src.start, 'interval', days=1, start_date='2022-03-01 00:05:05',
