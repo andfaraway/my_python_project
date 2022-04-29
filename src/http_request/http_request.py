@@ -468,7 +468,6 @@ def getMoyuInfo():
 @app.route("/getTips", methods=['get'])
 def getTips():
     now = datetime.datetime.now()
-    now = datetime.datetime.strptime('2022/04/29 17:18:00', '%Y/%m/%d %H:%M:%S')
 
     now_hour = now.strftime("%H")
     hour = int(now_hour)
