@@ -72,7 +72,7 @@ def third_login():
         dic: map = r_list[0]
         dic['userId'] = dic['id']
         del dic['id']
-        return http_result.dic_format(data=[dic])
+        return http_result.dic_format(data=dic)
 
 
 # 注册推送 用户id：user_id, 推送id：push_token, 别名：alias
@@ -115,9 +115,9 @@ def deleteMessage():
 
 
 # 插入登录表
-@app.route("/insertLaunchInfo", methods=['post'])
-def insertLaunchInfo():
-    res = api.insert_launch_info(**request.args)
+@app.route("/insertLaunch", methods=['post'])
+def insertLaunch():
+    res = api.insert_launch(**request.args)
     return http_result.dic_format()
 
 
@@ -330,7 +330,7 @@ def checkUpdate():
             update = True
             break
     data['update'] = update
-    return http_result.dic_format(data=[data])
+    return http_result.dic_format(data=data)
 
 
 def say_tuwei():
@@ -412,8 +412,10 @@ def uploadFile():
         if config.isDebug:
             local_path = '/Users/libin/Desktop'
         file.save('{}/{}/{}'.format(local_path, file_type, file.filename))
-        print('上传图片：{}/{}'.format(file_type, file.filename))
-        return http_result.dic_format()
+        data = {'url': 'http://{}/{}/{}'.format(config.get_host_ip(), file_type, file.filename)}
+        print(f'上传图片：{data}')
+        return http_result.dic_format(
+            data=data)
 
 
 # 获取用户信息
@@ -444,6 +446,23 @@ def getLaunchInfo():
         date = datetime.datetime.strptime(date_str, '%Y%m%d')
     dic = api.getLaunchInfo(date)
     return http_result.dic_format(data=dic)
+
+
+# 插入启动页信息
+@app.route("/insertLaunchInfo", methods=['post'])
+def insertLaunchInfo():
+    if request.args.get('content') is None or request.args.get('content') == '':
+        return http_result.dic_format(error_code=ErrorCode.CODE_202, msg='content不能为空')
+    if request.args.get('image') is None or request.args.get('image') == '':
+        return http_result.dic_format(error_code=ErrorCode.CODE_202, msg='image不能为空')
+    if request.args.get('image_background') is None or request.args.get('image_background') == '':
+        return http_result.dic_format(error_code=ErrorCode.CODE_202, msg='image_background不能为空')
+
+    result = api.insertLaunchInfo(**request.args)
+    if result == 1:
+        return http_result.dic_format()
+    else:
+        return http_result.dic_format(error_code=ErrorCode.CODE_201)
 
 
 # 获取摸鱼信息

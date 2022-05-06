@@ -7,8 +7,6 @@ from .error_code import *
 def dic_format(error_code=ErrorCode.CODE_200, msg=None, data=None):
     if error_code == ErrorCode.CODE_200:
         msg = 'success'
-        if data is None:
-            data = []
     if msg is None:
         msg = error_code.msg
     dic = {

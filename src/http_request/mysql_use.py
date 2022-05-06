@@ -108,6 +108,10 @@ def insertSqlStr(table, insert_dic):
     for index in range(len(keys)):
         key = keys[index]
         value = insert_dic.get(key)
+
+        if value is None or value == '':
+            # 去除空的key
+            continue
         key_str = key_str + key
         value_str = value_str + '\'{}\''.format(value)
 

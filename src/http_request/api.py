@@ -212,7 +212,7 @@ def getGodReceived(id=0):
 
 
 # 插入登录表
-def insert_launch_info(**kwargs):
+def insert_launch(**kwargs):
     param = {'userid': kwargs.get('userid'),
              'username': kwargs.get('username'),
              'version': kwargs.get('version'),
@@ -314,6 +314,7 @@ def getLaunchInfo(date):
     authorStr = dic['author']
     qr_code = dic['qr_code']
     backgroundImage = dic['image_background']
+    homePage = dic['home_page']
     # 获取内容
     res = {'title': festival,
            'dayStr': '{}'.format(solar.getDay()),
@@ -324,8 +325,27 @@ def getLaunchInfo(date):
            'authorStr': authorStr,
            'codeStr': qr_code,
            'image': image,
-           'backgroundImage':backgroundImage}
+           'backgroundImage': backgroundImage,
+           'homePage': homePage}
     print(res)
+    return res
+
+
+# 插入启动页信息
+def insertLaunchInfo(**kwargs):
+    param = {'id': kwargs.get('id'),
+             'festival': kwargs.get('festival'),
+             'content': kwargs.get('content'),
+             'author': kwargs.get('author'),
+             'qr_code': kwargs.get('qr_code'),
+             'home_page': kwargs.get('home_page'),
+             'image': kwargs.get('image'),
+             'image_background': kwargs.get('image_background'),
+             }
+    sql = mysql_use.insertSqlStr('launch_info', param)
+    cnn = mysql_use.connect_sql()
+    res = mysql_use.insert_info(cnn, sql)
+    cnn.close()
     return res
 
 
