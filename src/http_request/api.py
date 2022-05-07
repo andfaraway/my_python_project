@@ -217,6 +217,7 @@ def insert_launch(**kwargs):
              'username': kwargs.get('username'),
              'version': kwargs.get('version'),
              'alias': kwargs.get('alias'),
+             'registrationID': kwargs.get('registrationID'),
              'battery': kwargs.get('battery'),
              'device_info': kwargs.get('device_info'),
              'network': kwargs.get('network'),

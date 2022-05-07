@@ -52,7 +52,7 @@ def login():
     if result_dic is None or len(result_dic) == 0:
         return http_result.dic_format(ErrorCode.CODE_201)
     else:
-        return http_result.dic_format(data=result_dic)
+        return http_result.dic_format(data=result_dic[0])
 
 
 # 第三方登录  platform : 1.QQ  2.微信
