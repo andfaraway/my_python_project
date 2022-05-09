@@ -556,26 +556,41 @@ def getTips():
             d = (datetime.datetime.strptime('{} 00:00:00'.format(h.getDay()), '%Y-%m-%d %H:%M:%S') - now)
             if d.days > 0 or (d.days == 0 and d.seconds > 0 and today_holiday is None):
                 if first_dic is None:
+                    s: str = h.getDay()
+                    ls = s.split('-')
+                    date = f'({ls[1]}-{ls[2]})'
+
                     first_dic = {
                         'name': h.getName(),
                         'days': d.days,
-                        'seconds': d.seconds
+                        'seconds': d.seconds,
+                        'date': date
                     }
                     temp_name = h.getName()
                 elif temp_name is not None and temp_name != h.getName():
+                    s: str = h.getDay()
+                    ls = s.split('-')
+                    date = f'({ls[1]}-{ls[2]})'
+
                     second_dic = {
                         'name': h.getName(),
                         'days': d.days,
-                        'seconds': d.seconds
+                        'seconds': d.seconds,
+                        'date': date
                     }
                     break
     # 距离周末时间
     week_distance = None
     if solar.getWeek() != 0 and solar.getWeek() != 6:
         week_distance = 6 - solar.getWeek()
+
+    # 农历
+    lunar_str = f'{lunar.getYearGan()}{lunar.getYearZhi()}{lunar.getYearShengXiao()}年'
+
     # 当天日期
-    date_str = '{}好\n今天是{}月{}日 星期{}\n农历{}月{}'.format(time_str, solar.getMonth(), solar.getDay(),
+    date_str = '{}好\n今天是{}月{}日 星期{}\n{}{}月{}'.format(time_str, solar.getMonth(), solar.getDay(),
                                                      solar.getWeekInChinese(),
+                                                     lunar_str,
                                                      lunar.getMonthInChinese(),
                                                      lunar.getDayInChinese(),
                                                      )
@@ -588,6 +603,7 @@ def getTips():
         'first_dic': first_dic,
         'second_dic': second_dic,
     }
+    print(data)
     return http_result.dic_format(data=data)
 
 
