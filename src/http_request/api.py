@@ -316,6 +316,8 @@ def getLaunchInfo(date):
     qr_code = dic['qr_code']
     backgroundImage = dic['image_background']
     homePage = dic['home_page']
+    launch_type = dic['type']
+    time_count = dic['time_count']
     # 获取内容
     res = {'title': festival,
            'dayStr': '{}'.format(solar.getDay()),
@@ -327,7 +329,9 @@ def getLaunchInfo(date):
            'codeStr': qr_code,
            'image': image,
            'backgroundImage': backgroundImage,
-           'homePage': homePage}
+           'homePage': homePage,
+           'launchType': launch_type,
+           'timeCount': time_count}
     print(res)
     return res
 
